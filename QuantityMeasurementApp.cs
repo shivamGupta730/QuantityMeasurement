@@ -2,45 +2,87 @@ using System;
 
 namespace QuantityMeasurement
 {
+    // Main class for Quantity Measurement Application
     public class QuantityMeasurementApp
     {
-        // Feet class banayi hai jo feet value store karegi
+        // -------------------- FEET CLASS --------------------
+        // This class represents measurement in Feet
         public class Feet
         {
-            // yaha feet ki value store ho rahi hai
-            // readonly isliye ki baad me change na ho
+            // storing the value of feet
             private readonly double value;
 
-            // constructor se value set kar rahe hai
+            // constructor to initialize feet value
             public Feet(double value)
             {
                 this.value = value;
             }
 
-            // Equals method override kiya hai taaki
-            // do Feet objects ko compare kar sake
+            // overriding Equals method to compare two Feet objects
             public override bool Equals(object obj)
             {
-                // agar dono same object hai toh true
+                // checking if both references are same
                 if (ReferenceEquals(this, obj))
                     return true;
 
-                // agar null hai toh equal nahi ho sakta
+                // checking if object is null
                 if (obj == null)
                     return false;
 
-                // agar type alag hai toh compare nahi karenge
+                // checking if object is of same type
                 if (obj.GetType() != typeof(Feet))
                     return false;
 
-                // type cast kar rahe hai
+                // type casting
                 Feet other = (Feet)obj;
 
-                // dono ki value compare kar rahe hai
+                // comparing values
                 return this.value == other.value;
             }
 
-            // equals override kiya hai toh gethashcode bhi karna padta hai
+            // overriding GetHashCode method
+            public override int GetHashCode()
+            {
+                return value.GetHashCode();
+            }
+        }
+
+        // -------------------- INCHES CLASS --------------------
+        // This class represents measurement in Inches
+        public class Inches
+        {
+            // storing the value of inches
+            private readonly double value;
+
+            // constructor to initialize inches value
+            public Inches(double value)
+            {
+                this.value = value;
+            }
+
+            // overriding Equals method to compare two Inches objects
+            public override bool Equals(object obj)
+            {
+                // checking if both references are same
+                if (ReferenceEquals(this, obj))
+                    return true;
+
+                // checking if object is null
+                if (obj == null)
+                    return false;
+
+                // checking if object is of same type
+                if (obj.GetType() != typeof(Inches))
+                    return false;
+
+                // type casting
+                Inches other = (Inches)obj;
+
+                // comparing values
+                return this.value == other.value;
+            }
+
+            // overriding GetHashCode method
             public override int GetHashCode()
             {
                 return value.GetHashCode();

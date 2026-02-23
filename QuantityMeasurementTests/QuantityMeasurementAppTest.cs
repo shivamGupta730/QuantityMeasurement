@@ -4,40 +4,78 @@ using QuantityMeasurement;
 namespace QuantityMeasurementTests
 {
     [TestClass]
-    public class FeetTests
+    public class QuantityMeasurementAppTest
     {
-        [TestMethod]
-        public void Equals_SameValue_ReturnsTrue()
-        {
-            var first = new QuantityMeasurementApp.Feet(1.0);
-            var second = new QuantityMeasurementApp.Feet(1.0);
+        // ---------------- FEET TESTS ----------------
 
-            Assert.IsTrue(first.Equals(second));
+        [TestMethod]
+        public void Feet_SameValue_ReturnsTrue()
+        {
+            var f1 = new QuantityMeasurementApp.Feet(1.0);
+            var f2 = new QuantityMeasurementApp.Feet(1.0);
+
+            Assert.IsTrue(f1.Equals(f2));
         }
 
         [TestMethod]
-        public void Equals_DifferentValue_ReturnsFalse()
+        public void Feet_DifferentValue_ReturnsFalse()
         {
-            var first = new QuantityMeasurementApp.Feet(1.0);
-            var second = new QuantityMeasurementApp.Feet(2.0);
+            var f1 = new QuantityMeasurementApp.Feet(1.0);
+            var f2 = new QuantityMeasurementApp.Feet(2.0);
 
-            Assert.IsFalse(first.Equals(second));
+            Assert.IsFalse(f1.Equals(f2));
         }
 
         [TestMethod]
-        public void Equals_Null_ReturnsFalse()
+        public void Feet_NullComparison_ReturnsFalse()
         {
-            var first = new QuantityMeasurementApp.Feet(1.0);
+            var f1 = new QuantityMeasurementApp.Feet(1.0);
 
-            Assert.IsFalse(first.Equals(null));
+            Assert.IsFalse(f1.Equals(null));
         }
 
         [TestMethod]
-        public void Equals_SameReference_ReturnsTrue()
+        public void Feet_SameReference_ReturnsTrue()
         {
-            var first = new QuantityMeasurementApp.Feet(1.0);
+            var f1 = new QuantityMeasurementApp.Feet(1.0);
 
-            Assert.IsTrue(first.Equals(first));
+            Assert.IsTrue(f1.Equals(f1));
+        }
+
+        // ---------------- INCHES TESTS ----------------
+
+        [TestMethod]
+        public void Inches_SameValue_ReturnsTrue()
+        {
+            var i1 = new QuantityMeasurementApp.Inches(5.0);
+            var i2 = new QuantityMeasurementApp.Inches(5.0);
+
+            Assert.IsTrue(i1.Equals(i2));
+        }
+
+        [TestMethod]
+        public void Inches_DifferentValue_ReturnsFalse()
+        {
+            var i1 = new QuantityMeasurementApp.Inches(5.0);
+            var i2 = new QuantityMeasurementApp.Inches(10.0);
+
+            Assert.IsFalse(i1.Equals(i2));
+        }
+
+        [TestMethod]
+        public void Inches_NullComparison_ReturnsFalse()
+        {
+            var i1 = new QuantityMeasurementApp.Inches(5.0);
+
+            Assert.IsFalse(i1.Equals(null));
+        }
+
+        [TestMethod]
+        public void Inches_SameReference_ReturnsTrue()
+        {
+            var i1 = new QuantityMeasurementApp.Inches(5.0);
+
+            Assert.IsTrue(i1.Equals(i1));
         }
     }
 }
