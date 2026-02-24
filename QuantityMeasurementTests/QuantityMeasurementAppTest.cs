@@ -6,76 +6,81 @@ namespace QuantityMeasurementTests
     [TestClass]
     public class QuantityMeasurementAppTest
     {
-        // ---------------- FEET TESTS ----------------
+        private QuantityMeasurementService service;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            service = new QuantityMeasurementService();
+        }
+
+        // -------- SAME UNIT TESTS --------
 
         [TestMethod]
         public void Feet_SameValue_ReturnsTrue()
         {
-            var f1 = new QuantityMeasurementApp.Feet(1.0);
-            var f2 = new QuantityMeasurementApp.Feet(1.0);
+            var l1 = new Length(1.0, LengthUnit.Feet);
+            var l2 = new Length(1.0, LengthUnit.Feet);
 
-            Assert.IsTrue(f1.Equals(f2));
+            Assert.IsTrue(service.CompareLengths(l1, l2));
         }
 
         [TestMethod]
         public void Feet_DifferentValue_ReturnsFalse()
         {
-            var f1 = new QuantityMeasurementApp.Feet(1.0);
-            var f2 = new QuantityMeasurementApp.Feet(2.0);
+            var l1 = new Length(1.0, LengthUnit.Feet);
+            var l2 = new Length(2.0, LengthUnit.Feet);
 
-            Assert.IsFalse(f1.Equals(f2));
+            Assert.IsFalse(service.CompareLengths(l1, l2));
         }
-
-        [TestMethod]
-        public void Feet_NullComparison_ReturnsFalse()
-        {
-            var f1 = new QuantityMeasurementApp.Feet(1.0);
-
-            Assert.IsFalse(f1.Equals(null));
-        }
-
-        [TestMethod]
-        public void Feet_SameReference_ReturnsTrue()
-        {
-            var f1 = new QuantityMeasurementApp.Feet(1.0);
-
-            Assert.IsTrue(f1.Equals(f1));
-        }
-
-        // ---------------- INCHES TESTS ----------------
 
         [TestMethod]
         public void Inches_SameValue_ReturnsTrue()
         {
-            var i1 = new QuantityMeasurementApp.Inches(5.0);
-            var i2 = new QuantityMeasurementApp.Inches(5.0);
+            var l1 = new Length(5.0, LengthUnit.Inches);
+            var l2 = new Length(5.0, LengthUnit.Inches);
 
-            Assert.IsTrue(i1.Equals(i2));
+            Assert.IsTrue(service.CompareLengths(l1, l2));
         }
 
         [TestMethod]
         public void Inches_DifferentValue_ReturnsFalse()
         {
-            var i1 = new QuantityMeasurementApp.Inches(5.0);
-            var i2 = new QuantityMeasurementApp.Inches(10.0);
+            var l1 = new Length(5.0, LengthUnit.Inches);
+            var l2 = new Length(10.0, LengthUnit.Inches);
 
-            Assert.IsFalse(i1.Equals(i2));
+            Assert.IsFalse(service.CompareLengths(l1, l2));
         }
 
-        [TestMethod]
-        public void Inches_NullComparison_ReturnsFalse()
-        {
-            var i1 = new QuantityMeasurementApp.Inches(5.0);
+        // -------- CROSS UNIT TEST --------
 
-            Assert.IsFalse(i1.Equals(null));
+        [TestMethod]
+        public void FeetAndInches_Equivalent_ReturnsTrue()
+        {
+            var l1 = new Length(1.0, LengthUnit.Feet);
+            var l2 = new Length(12.0, LengthUnit.Inches);
+
+            Assert.IsTrue(service.CompareLengths(l1, l2));
         }
 
-        [TestMethod]
-        public void Inches_SameReference_ReturnsTrue()
-        {
-            var i1 = new QuantityMeasurementApp.Inches(5.0);
+        // -------- NULL TEST --------
 
-            Assert.IsTrue(i1.Equals(i1));
+        [TestMethod]
+        public void NullComparison_ReturnsFalse()
+        {
+            var l1 = new Length(1.0, LengthUnit.Feet);
+
+            Assert.IsFalse(l1.Equals(null));
+        }
+
+        // -------- SAME REFERENCE --------
+
+        [TestMethod]
+        public void SameReference_ReturnsTrue()
+        {
+            var l1 = new Length(5.0, LengthUnit.Inches);
+
+            Assert.IsTrue(l1.Equals(l1));
         }
     }
 }
