@@ -245,5 +245,62 @@ public void Addition_WithExplicitTarget_Yards()
 
     Assert.AreEqual(new Length(2.0 / 3.0, LengthUnit.Yards), result);
 }
+// ================= UC8 : STANDALONE ENUM TESTS =================
+
+[TestMethod]
+public void LengthUnit_Feet_ConvertToBase()
+{
+    double result = LengthUnit.Feet.ConvertToBaseUnit(5.0);
+    Assert.AreEqual(5.0, result, 1e-6);
+}
+
+[TestMethod]
+public void LengthUnit_Inches_ConvertToBase()
+{
+    double result = LengthUnit.Inches.ConvertToBaseUnit(12.0);
+    Assert.AreEqual(1.0, result, 1e-6);
+}
+
+[TestMethod]
+public void LengthUnit_Yards_ConvertToBase()
+{
+    double result = LengthUnit.Yards.ConvertToBaseUnit(1.0);
+    Assert.AreEqual(3.0, result, 1e-6);
+}
+
+[TestMethod]
+public void LengthUnit_Centimeters_ConvertToBase()
+{
+    double result = LengthUnit.Centimeters.ConvertToBaseUnit(30.48);
+    Assert.AreEqual(1.0, result, 1e-6);
+}
+
+[TestMethod]
+public void LengthUnit_FromBase_ToInches()
+{
+    double result = LengthUnit.Inches.ConvertFromBaseUnit(1.0);
+    Assert.AreEqual(12.0, result, 1e-6);
+}
+
+[TestMethod]
+public void QuantityLength_Refactored_ConvertTo()
+{
+    var length = new Length(1.0, LengthUnit.Feet);
+    var result = length.ConvertTo(LengthUnit.Inches);
+
+    Assert.AreEqual(new Length(12.0, LengthUnit.Inches), result);
+}
+
+[TestMethod]
+public void QuantityLength_Refactored_Add_WithTargetUnit()
+{
+    var l1 = new Length(1.0, LengthUnit.Feet);
+    var l2 = new Length(12.0, LengthUnit.Inches);
+
+    var result = l1.Add(l2, LengthUnit.Yards);
+
+    Assert.AreEqual(0.666667, result.Value, 1e-6);
+    Assert.AreEqual(LengthUnit.Yards, result.Unit);
+}
     }
 }
