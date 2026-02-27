@@ -2,16 +2,18 @@ using System;
 
 namespace QuantityMeasurement
 {
-    public class Length
+  
+
+    public sealed class Length
     {
+        private const double EPSILON = 1e-6;
         private readonly double value;
         private readonly LengthUnit unit;
-        private const double EPSILON = 1e-6;
 
         public Length(double value, LengthUnit unit)
         {
-            if (!double.IsFinite(value))
-                throw new ArgumentException("Invalid value");
+            if (double.IsNaN(value) || double.IsInfinity(value))
+                throw new ArgumentException("Invalid numeric value.");
 
             this.value = value;
             this.unit = unit;
@@ -20,82 +22,100 @@ namespace QuantityMeasurement
         public double Value => value;
         public LengthUnit Unit => unit;
 
-        private static double ToFeet(double value, LengthUnit unit)
+        // ================= BASE CONVERSION =================
+
+        private double ToBaseUnitFeet()
         {
             return unit switch
             {
                 LengthUnit.Feet => value,
                 LengthUnit.Inches => value / 12.0,
                 LengthUnit.Yards => value * 3.0,
-                LengthUnit.Centimeters => value * 0.0328084,
-                _ => throw new ArgumentException("Invalid unit")
+                LengthUnit.Centimeters => value / 30.48,
+                _ => throw new ArgumentException("Unsupported unit")
             };
         }
 
-        private static double FromFeet(double feet, LengthUnit target)
+        private static double FromBaseFeet(double feetValue, LengthUnit targetUnit)
         {
-            return target switch
+            return targetUnit switch
             {
-                LengthUnit.Feet => feet,
-                LengthUnit.Inches => feet * 12.0,
-                LengthUnit.Yards => feet / 3.0,
-                LengthUnit.Centimeters => feet / 0.0328084,
-                _ => throw new ArgumentException("Invalid unit")
+                LengthUnit.Feet => feetValue,
+                LengthUnit.Inches => feetValue * 12.0,
+                LengthUnit.Yards => feetValue / 3.0,
+                LengthUnit.Centimeters => feetValue * 30.48,
+                _ => throw new ArgumentException("Unsupported target unit")
             };
+        }
+
+        // ================= UC5 STATIC CONVERT =================
+
+        public static double Convert(double value, LengthUnit from, LengthUnit to)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+                throw new ArgumentException("Invalid numeric value.");
+
+            double baseFeet = from switch
+            {
+                LengthUnit.Feet => value,
+                LengthUnit.Inches => value / 12.0,
+                LengthUnit.Yards => value * 3.0,
+                LengthUnit.Centimeters => value / 30.48,
+                _ => throw new ArgumentException("Unsupported unit")
+            };
+
+            return FromBaseFeet(baseFeet, to);
         }
 
         public Length ConvertTo(LengthUnit targetUnit)
         {
-            double feet = ToFeet(value, unit);
-            double converted = FromFeet(feet, targetUnit);
+            double baseFeet = ToBaseUnitFeet();
+            double converted = FromBaseFeet(baseFeet, targetUnit);
             return new Length(converted, targetUnit);
         }
 
-        public static double Convert(double value, LengthUnit source, LengthUnit target)
-        {
-            if (!double.IsFinite(value))
-                throw new ArgumentException("Invalid value");
-
-            double feet = ToFeet(value, source);
-            return FromFeet(feet, target);
-        }
+        // ================= UC6 ADD =================
 
         public Length Add(Length other)
         {
             if (other == null)
                 throw new ArgumentException("Length cannot be null");
 
-            double sumFeet = ToFeet(this.value, this.unit)
-                           + ToFeet(other.value, other.unit);
+            double sumFeet = this.ToBaseUnitFeet() + other.ToBaseUnitFeet();
+            double resultValue = FromBaseFeet(sumFeet, this.unit);
 
-            double result = FromFeet(sumFeet, this.unit);
-
-            return new Length(result, this.unit);
+            return new Length(resultValue, this.unit);
         }
 
-        public bool Compare(Length? other)
+        // ================= UC7 ADD WITH TARGET =================
+
+        public Length Add(Length other, LengthUnit targetUnit)
         {
-            if (other is null)
-                return false;
+            if (other == null)
+                throw new ArgumentException("Length cannot be null");
 
-            double thisFeet = ToFeet(this.value, this.unit);
-            double otherFeet = ToFeet(other.value, other.unit);
+            double sumFeet = this.ToBaseUnitFeet() + other.ToBaseUnitFeet();
+            double resultValue = FromBaseFeet(sumFeet, targetUnit);
 
-            return Math.Abs(thisFeet - otherFeet) < EPSILON;
+            return new Length(resultValue, targetUnit);
         }
 
-        public override bool Equals(object? obj)
+        // ================= EQUALITY =================
+
+        public override bool Equals(object obj)
         {
+            if (ReferenceEquals(this, obj))
+                return true;
+
             if (obj is not Length other)
                 return false;
 
-            return Compare(other);
+            return Math.Abs(this.ToBaseUnitFeet() - other.ToBaseUnitFeet()) < EPSILON;
         }
 
         public override int GetHashCode()
         {
-            double feet = ToFeet(value, unit);
-            return feet.GetHashCode();
+            return ToBaseUnitFeet().GetHashCode();
         }
 
         public override string ToString()

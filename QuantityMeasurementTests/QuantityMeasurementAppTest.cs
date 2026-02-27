@@ -213,5 +213,37 @@ namespace QuantityMeasurementTests
 
             Assert.AreEqual(new Length(3.0, LengthUnit.Feet), result);
         }
+        [TestMethod]
+public void Addition_WithExplicitTarget_Feet()
+{
+    var l1 = new Length(1.0, LengthUnit.Feet);
+    var l2 = new Length(12.0, LengthUnit.Inches);
+
+    var result = l1.Add(l2, LengthUnit.Feet);
+
+    Assert.AreEqual(new Length(2.0, LengthUnit.Feet), result);
+}
+
+[TestMethod]
+public void Addition_WithExplicitTarget_Inches()
+{
+    var l1 = new Length(1.0, LengthUnit.Feet);
+    var l2 = new Length(12.0, LengthUnit.Inches);
+
+    var result = l1.Add(l2, LengthUnit.Inches);
+
+    Assert.AreEqual(new Length(24.0, LengthUnit.Inches), result);
+}
+
+[TestMethod]
+public void Addition_WithExplicitTarget_Yards()
+{
+    var l1 = new Length(1.0, LengthUnit.Feet);
+    var l2 = new Length(12.0, LengthUnit.Inches);
+
+    var result = l1.Add(l2, LengthUnit.Yards);
+
+    Assert.AreEqual(new Length(2.0 / 3.0, LengthUnit.Yards), result);
+}
     }
 }
