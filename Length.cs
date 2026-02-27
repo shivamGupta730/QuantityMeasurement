@@ -6,78 +6,86 @@ namespace QuantityMeasurement
     {
         private readonly double value;
         private readonly LengthUnit unit;
-
-        private const double Tolerance = 0.000001;
+        private const double EPSILON = 1e-6;
 
         public Length(double value, LengthUnit unit)
         {
             if (!double.IsFinite(value))
-                throw new ArgumentException("Value must be finite.");
+                throw new ArgumentException("Invalid value");
 
             this.value = value;
             this.unit = unit;
         }
 
-        // 🔹 Convert to base unit (Inches)
-        private double ConvertToBaseUnit()
+        public double Value => value;
+        public LengthUnit Unit => unit;
+
+        private static double ToFeet(double value, LengthUnit unit)
         {
             return unit switch
             {
-                LengthUnit.Feet => value * 12,
-                LengthUnit.Inches => value,
-                LengthUnit.Yards => value * 36,
-                LengthUnit.Centimeters => value * 0.393701,
-                _ => throw new InvalidOperationException("Unsupported unit")
+                LengthUnit.Feet => value,
+                LengthUnit.Inches => value / 12.0,
+                LengthUnit.Yards => value * 3.0,
+                LengthUnit.Centimeters => value * 0.0328084,
+                _ => throw new ArgumentException("Invalid unit")
+            };
+        }
+
+        private static double FromFeet(double feet, LengthUnit target)
+        {
+            return target switch
+            {
+                LengthUnit.Feet => feet,
+                LengthUnit.Inches => feet * 12.0,
+                LengthUnit.Yards => feet / 3.0,
+                LengthUnit.Centimeters => feet / 0.0328084,
+                _ => throw new ArgumentException("Invalid unit")
             };
         }
 
         public Length ConvertTo(LengthUnit targetUnit)
         {
-            if (targetUnit == unit)
-                return new Length(value, unit);
-
-            double inches = ConvertToBaseUnit();
-
-            double convertedValue = targetUnit switch
-            {
-                LengthUnit.Feet => inches / 12,
-                LengthUnit.Inches => inches,
-                LengthUnit.Yards => inches / 36,
-                LengthUnit.Centimeters => inches / 0.393701,
-                _ => throw new InvalidOperationException("Unsupported unit")
-            };
-
-            return new Length(convertedValue, targetUnit);
+            double feet = ToFeet(value, unit);
+            double converted = FromFeet(feet, targetUnit);
+            return new Length(converted, targetUnit);
         }
 
-        
         public static double Convert(double value, LengthUnit source, LengthUnit target)
         {
             if (!double.IsFinite(value))
-                throw new ArgumentException("Value must be finite.");
+                throw new ArgumentException("Invalid value");
 
-            if (source == target)
-                return value;
-
-            var length = new Length(value, source);
-            var converted = length.ConvertTo(target);
-
-            return converted.value;
+            double feet = ToFeet(value, source);
+            return FromFeet(feet, target);
         }
 
-        public bool Compare(Length other)
+        public Length Add(Length other)
+        {
+            if (other == null)
+                throw new ArgumentException("Length cannot be null");
+
+            double sumFeet = ToFeet(this.value, this.unit)
+                           + ToFeet(other.value, other.unit);
+
+            double result = FromFeet(sumFeet, this.unit);
+
+            return new Length(result, this.unit);
+        }
+
+        public bool Compare(Length? other)
         {
             if (other is null)
                 return false;
 
-            return Math.Abs(ConvertToBaseUnit() - other.ConvertToBaseUnit()) < Tolerance;
+            double thisFeet = ToFeet(this.value, this.unit);
+            double otherFeet = ToFeet(other.value, other.unit);
+
+            return Math.Abs(thisFeet - otherFeet) < EPSILON;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(this, obj))
-                return true;
-
             if (obj is not Length other)
                 return false;
 
@@ -86,7 +94,8 @@ namespace QuantityMeasurement
 
         public override int GetHashCode()
         {
-            return ConvertToBaseUnit().GetHashCode();
+            double feet = ToFeet(value, unit);
+            return feet.GetHashCode();
         }
 
         public override string ToString()
