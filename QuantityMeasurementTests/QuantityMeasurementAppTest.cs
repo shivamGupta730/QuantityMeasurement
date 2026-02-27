@@ -103,6 +103,7 @@ namespace QuantityMeasurementTests
             Assert.IsFalse(service.CompareLengths(cm, feet));
         }
 
+
         // ================= REFLEXIVE & NULL =================
 
         [TestMethod]
@@ -120,5 +121,79 @@ namespace QuantityMeasurementTests
 
             Assert.IsFalse(l1.Equals(null));
         }
+        // ================= UC5 : CONVERSION TESTS =================
+
+[TestMethod]
+public void Convert_FeetToInches()
+{
+    double result = Length.Convert(1.0, LengthUnit.Feet, LengthUnit.Inches);
+    Assert.AreEqual(12.0, result, 1e-6);
+}
+
+[TestMethod]
+public void Convert_InchesToFeet()
+{
+    double result = Length.Convert(24.0, LengthUnit.Inches, LengthUnit.Feet);
+    Assert.AreEqual(2.0, result, 1e-6);
+}
+
+[TestMethod]
+public void Convert_YardsToFeet()
+{
+    double result = Length.Convert(3.0, LengthUnit.Yards, LengthUnit.Feet);
+    Assert.AreEqual(9.0, result, 1e-6);
+}
+
+[TestMethod]
+public void Convert_InchesToYards()
+{
+    double result = Length.Convert(72.0, LengthUnit.Inches, LengthUnit.Yards);
+    Assert.AreEqual(2.0, result, 1e-6);
+}
+
+[TestMethod]
+public void Convert_CentimetersToInches()
+{
+    double result = Length.Convert(2.54, LengthUnit.Centimeters, LengthUnit.Inches);
+    Assert.AreEqual(1.0, result, 1e-6);
+}
+
+[TestMethod]
+public void Convert_ZeroValue()
+{
+    double result = Length.Convert(0.0, LengthUnit.Feet, LengthUnit.Inches);
+    Assert.AreEqual(0.0, result, 1e-6);
+}
+
+[TestMethod]
+public void Convert_NegativeValue()
+{
+    double result = Length.Convert(-1.0, LengthUnit.Feet, LengthUnit.Inches);
+    Assert.AreEqual(-12.0, result, 1e-6);
+}
+
+[TestMethod]
+public void Convert_SameUnit()
+{
+    double result = Length.Convert(5.0, LengthUnit.Feet, LengthUnit.Feet);
+    Assert.AreEqual(5.0, result, 1e-6);
+}
+
+[TestMethod]
+public void Convert_RoundTrip_PreservesValue()
+{
+    double original = 10.0;
+    double converted = Length.Convert(original, LengthUnit.Feet, LengthUnit.Inches);
+    double back = Length.Convert(converted, LengthUnit.Inches, LengthUnit.Feet);
+
+    Assert.AreEqual(original, back, 1e-6);
+}
+
+[TestMethod]
+[ExpectedException(typeof(ArgumentException))]
+public void Convert_InvalidValue_Throws()
+{
+    Length.Convert(double.NaN, LengthUnit.Feet, LengthUnit.Inches);
+}
     }
 }

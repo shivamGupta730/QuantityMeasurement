@@ -5,7 +5,7 @@ It focuses on implementing value-based equality for different measurement units 
 
 ---
 
-## ✅ UC1 – Feet Measurement Equality
+##  UC1 – Feet Measurement Equality
 
 UC1 implements equality comparison for measurements expressed in feet.
 
@@ -15,7 +15,7 @@ UC1 implements equality comparison for measurements expressed in feet.
 
 ---
 
-## ✅ UC2 – Feet and Inches Measurement Equality
+##  UC2 – Feet and Inches Measurement Equality
 
 UC2 extends the application by introducing equality comparison for measurements expressed in inches, along with feet.
 
@@ -52,3 +52,22 @@ UC4 extends the generic design introduced in UC3 by adding additional measuremen
 
 📐 Conversion logic is extended to support these new units using the same base unit (Inches).
 
+## UC5 – Unit-to-Unit Conversion
+
+UC5 introduces explicit conversion functionality between supported length units.
+
+🔄 Adds Convert(double value, LengthUnit source, LengthUnit target) API.
+
+📐 All conversions normalize to a common base unit (Inches).
+
+🏷 Supports Feet, Inches, Yards, and Centimeters.
+
+🧠 Formula used: result = value × (sourceFactor / targetFactor)
+
+🔁 Same-unit conversion returns original value.
+
+➖ Negative and zero values are supported.
+
+🛡 Validates finite values (no NaN / Infinity).
+
+🧪 Unit tests cover basic, cross-unit, round-trip, and invalid input scenarios.

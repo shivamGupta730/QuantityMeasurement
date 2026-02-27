@@ -2,91 +2,54 @@ using System;
 
 namespace QuantityMeasurement
 {
-    // Main class for Quantity Measurement Application
     public class QuantityMeasurementApp
     {
-        // -------------------- FEET CLASS --------------------
-        // This class represents measurement in Feet
-        public class Feet
+        public static bool DemonstrateLengthEquality(Length l1, Length l2)
         {
-            // storing the value of feet
-            private readonly double value;
-
-            // constructor to initialize feet value
-            public Feet(double value)
-            {
-                this.value = value;
-            }
-
-            // overriding Equals method to compare two Feet objects
-            public override bool Equals(object obj)
-            {
-                // checking if both references are same
-                if (ReferenceEquals(this, obj))
-                    return true;
-
-                // checking if object is null
-                if (obj == null)
-                    return false;
-
-                // checking if object is of same type
-                if (obj.GetType() != typeof(Feet))
-                    return false;
-
-                // type casting
-                Feet other = (Feet)obj;
-
-                // comparing values
-                return this.value == other.value;
-            }
-
-            // overriding GetHashCode method
-            public override int GetHashCode()
-            {
-                return value.GetHashCode();
-            }
+            return l1.Equals(l2);
         }
 
-        // -------------------- INCHES CLASS --------------------
-        // This class represents measurement in Inches
-        public class Inches
+        public static bool DemonstrateLengthComparison(
+            double value1, LengthUnit unit1,
+            double value2, LengthUnit unit2)
         {
-            // storing the value of inches
-            private readonly double value;
+            var l1 = new Length(value1, unit1);
+            var l2 = new Length(value2, unit2);
 
-            // constructor to initialize inches value
-            public Inches(double value)
-            {
-                this.value = value;
-            }
+            return DemonstrateLengthEquality(l1, l2);
+        }
 
-            // overriding Equals method to compare two Inches objects
-            public override bool Equals(object obj)
-            {
-                // checking if both references are same
-                if (ReferenceEquals(this, obj))
-                    return true;
+        // 🔹 Overloaded Method 1
+        public static Length DemonstrateLengthConversion(
+            double value,
+            LengthUnit fromUnit,
+            LengthUnit toUnit)
+        {
+            var length = new Length(value, fromUnit);
+            return length.ConvertTo(toUnit);
+        }
 
-                // checking if object is null
-                if (obj == null)
-                    return false;
+       
+        public static Length DemonstrateLengthConversion(
+            Length length,
+            LengthUnit toUnit)
+        {
+            return length.ConvertTo(toUnit);
+        }
 
-                // checking if object is of same type
-                if (obj.GetType() != typeof(Inches))
-                    return false;
+        static void Main(string[] args)
+        {
+            Console.WriteLine("1 Foot to Inches: " +
+                Length.Convert(1, LengthUnit.Feet, LengthUnit.Inches));
 
-                // type casting
-                Inches other = (Inches)obj;
+            Console.WriteLine("3 Yards to Feet: " +
+                Length.Convert(3, LengthUnit.Yards, LengthUnit.Feet));
 
-                // comparing values
-                return this.value == other.value;
-            }
+            Console.WriteLine("36 Inches to Yards: " +
+                Length.Convert(36, LengthUnit.Inches, LengthUnit.Yards));
 
-            // overriding GetHashCode method
-            public override int GetHashCode()
-            {
-                return value.GetHashCode();
-            }
+            Console.WriteLine("1 CM to Inches: " +
+                Length.Convert(1, LengthUnit.Centimeters, LengthUnit.Inches));
         }
     }
 }
