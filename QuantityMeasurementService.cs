@@ -1,11 +1,10 @@
 namespace QuantityMeasurement
 {
-    // Service layer for handling comparison logic
     public class QuantityMeasurementService
     {
-        public bool CompareLengths(Length length1, Length length2)
+        public bool CompareLengths(Length l1, Length l2)
         {
-            return length1.Equals(length2);
+            return l1.Compare(l2);
         }
     }
 }

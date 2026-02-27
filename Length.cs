@@ -2,7 +2,7 @@ using System;
 
 namespace QuantityMeasurement
 {
-    // Generic Length class (UC3 implementation)
+    
     public class Length
     {
         private readonly double value;
@@ -17,26 +17,28 @@ namespace QuantityMeasurement
             this.unit = unit;
         }
 
-        // Convert all units to base unit (Inches)
+        // Base Unit = Inches
         private double ConvertToBaseUnit()
         {
             return unit switch
             {
                 LengthUnit.Feet => value * 12,
                 LengthUnit.Inches => value,
+                LengthUnit.Yards => value * 36,               // 1 Yard = 36 Inches
+                LengthUnit.Centimeters => value * 0.393701,   // 1 cm = 0.393701 Inches
                 _ => throw new InvalidOperationException("Unsupported unit")
             };
         }
 
-        public bool Compare(Length other)
+        public bool Compare(Length? other)
         {
-            if (other == null)
+            if (other is null)
                 return false;
 
-            return ConvertToBaseUnit() == other.ConvertToBaseUnit();
+            return Math.Abs(ConvertToBaseUnit() - other.ConvertToBaseUnit()) < 0.0001;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
