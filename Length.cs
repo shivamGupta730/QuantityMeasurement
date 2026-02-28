@@ -2,41 +2,31 @@ using System;
 
 namespace QuantityMeasurement
 {
-    public class Length
+    public class Length : Quantity<LengthUnit>
     {
-        private const double EPSILON = 1e-6;
+        public Length(double value, LengthUnit unit) : base(value, unit) { }
 
-        public double Value { get; }
-        public LengthUnit Unit { get; }
-
-        public Length(double value, LengthUnit unit)
-        {
-            if (double.IsNaN(value) || double.IsInfinity(value))
-                throw new ArgumentException("Invalid numeric value");
-
-            Value = value;
-            Unit = unit;
-        }
-
-        private double ToBaseUnit()
+        protected override double ToBaseUnit()
         {
             return Unit.ConvertToBaseUnit(Value);
         }
 
-        public static double Convert(double value, LengthUnit from, LengthUnit to)
+        protected override double FromBaseUnit(double baseValue)
         {
-            if (double.IsNaN(value) || double.IsInfinity(value))
-                throw new ArgumentException("Invalid numeric value");
-
-            double baseValue = from.ConvertToBaseUnit(value);
-            return to.ConvertFromBaseUnit(baseValue);
+            return Unit.ConvertFromBaseUnit(baseValue);
         }
 
         public Length ConvertTo(LengthUnit targetUnit)
         {
             double baseValue = ToBaseUnit();
             double converted = targetUnit.ConvertFromBaseUnit(baseValue);
-            return new Length(converted, targetUnit);   // ❌ NO ROUNDING
+            return new Length(converted, targetUnit);
+        }
+
+        public static double Convert(double value, LengthUnit from, LengthUnit to)
+        {
+            double baseValue = from.ConvertToBaseUnit(value);
+            return to.ConvertFromBaseUnit(baseValue);
         }
 
         public Length Add(Length other)
@@ -52,15 +42,12 @@ namespace QuantityMeasurement
             double sumBase = this.ToBaseUnit() + other.ToBaseUnit();
             double result = targetUnit.ConvertFromBaseUnit(sumBase);
 
-            return new Length(result, targetUnit);   // ❌ NO ROUNDING
+            return new Length(result, targetUnit);
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is not Length other)
-                return false;
-
-            return Math.Abs(this.ToBaseUnit() - other.ToBaseUnit()) < EPSILON;
+            return obj is Length other && IsEqual(other);
         }
 
         public override int GetHashCode()
