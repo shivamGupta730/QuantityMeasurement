@@ -62,11 +62,3 @@ A clean, scalable, immutable value-object implementation for length comparison, 
 
 ---
 
-## 🏗 Design Highlights
-- Immutable value object
-- Delegation pattern (Length → LengthUnit)
-- Base unit normalization strategy
-- Enum-based type safety
-- Scalable architecture
-
----
