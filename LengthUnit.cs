@@ -2,43 +2,37 @@ using System;
 
 namespace QuantityMeasurement
 {
-    public enum LengthUnit
+    public class LengthUnit
     {
-        Feet,
-        Inches,
-        Yards,
-        Centimeters
-    }
+        private readonly double factor;
 
-    public static class LengthUnitExtensions
-    {
-        private const double FeetFactor = 1.0;
-        private const double InchesFactor = 1.0 / 12.0;
-        private const double YardsFactor = 3.0;
-        private const double CmFactor = 1.0 / 30.48;
-
-        public static double ConvertToBaseUnit(this LengthUnit unit, double value)
+        private LengthUnit(double factor)
         {
-            return unit switch
-            {
-                LengthUnit.Feet => value * FeetFactor,
-                LengthUnit.Inches => value * InchesFactor,
-                LengthUnit.Yards => value * YardsFactor,
-                LengthUnit.Centimeters => value * CmFactor,
-                _ => throw new ArgumentException("Invalid Length Unit")
-            };
+            this.factor = factor;
         }
 
-        public static double ConvertFromBaseUnit(this LengthUnit unit, double baseValue)
+        // Base unit = Feet
+        public static readonly LengthUnit Feet = new LengthUnit(1);
+        public static readonly LengthUnit Inches = new LengthUnit(1.0 / 12);
+        public static readonly LengthUnit Yards = new LengthUnit(3);
+        public static readonly LengthUnit Centimeters = new LengthUnit(0.0328084);
+
+        public double ConvertToBaseUnit(double value)
         {
-            return unit switch
-            {
-                LengthUnit.Feet => baseValue / FeetFactor,
-                LengthUnit.Inches => baseValue / InchesFactor,
-                LengthUnit.Yards => baseValue / YardsFactor,
-                LengthUnit.Centimeters => baseValue / CmFactor,
-                _ => throw new ArgumentException("Invalid Length Unit")
-            };
+            return value * factor;
+        }
+
+        public double ConvertFromBaseUnit(double baseValue)
+        {
+            return baseValue / factor;
+        }
+
+        public override string ToString()
+        {
+            if (factor == 1) return "Feet";
+            if (factor == 1.0 / 12) return "Inches";
+            if (factor == 3) return "Yards";
+            return "Centimeters";
         }
     }
 }

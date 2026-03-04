@@ -2,15 +2,18 @@ using System;
 
 namespace QuantityMeasurement
 {
-    public abstract class Quantity<TUnit> where TUnit : Enum
+    // Generic Quantity class
+    public class Quantity<U>
     {
-        protected const double EPSILON = 1e-6;
-
+        // Properties used by tests
         public double Value { get; }
-        public TUnit Unit { get; }
+        public U Unit { get; }
 
-        protected Quantity(double value, TUnit unit)
+        public Quantity(double value, U unit)
         {
+            if (unit == null)
+                throw new ArgumentException("Unit cannot be null");
+
             if (double.IsNaN(value) || double.IsInfinity(value))
                 throw new ArgumentException("Invalid numeric value");
 
@@ -18,20 +21,76 @@ namespace QuantityMeasurement
             Unit = unit;
         }
 
-        protected abstract double ToBaseUnit();
-        protected abstract double FromBaseUnit(double baseValue);
-
-        public bool IsEqual(Quantity<TUnit> other)
+        // Convert to another unit
+        public Quantity<U> ConvertTo(U targetUnit)
         {
-            if (other == null)
-                return false;
+            if (targetUnit == null)
+                throw new ArgumentException("Target unit cannot be null");
 
-            return Math.Abs(this.ToBaseUnit() - other.ToBaseUnit()) < EPSILON;
+            dynamic currentUnit = Unit;
+            dynamic target = targetUnit;
+
+            double baseValue = currentUnit.ConvertToBaseUnit(Value);
+            double converted = target.ConvertFromBaseUnit(baseValue);
+
+            return new Quantity<U>(Math.Round(converted, 6), targetUnit);
         }
 
-        protected double AddBase(Quantity<TUnit> other)
+        // Addition returning result in same unit
+        public Quantity<U> Add(Quantity<U> other)
         {
-            return this.ToBaseUnit() + other.ToBaseUnit();
+            if (other == null)
+                throw new ArgumentException("Quantity cannot be null");
+
+            return Add(other, Unit);
+        }
+
+        // Addition with target unit
+        public Quantity<U> Add(Quantity<U> other, U targetUnit)
+        {
+            if (other == null)
+                throw new ArgumentException("Quantity cannot be null");
+
+            dynamic u1 = Unit;
+            dynamic u2 = other.Unit;
+            dynamic target = targetUnit;
+
+            double base1 = u1.ConvertToBaseUnit(Value);
+            double base2 = u2.ConvertToBaseUnit(other.Value);
+
+            double totalBase = base1 + base2;
+
+            double result = target.ConvertFromBaseUnit(totalBase);
+
+            return new Quantity<U>(Math.Round(result, 6), targetUnit);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is Quantity<U>))
+                return false;
+
+            Quantity<U> other = (Quantity<U>)obj;
+
+            dynamic u1 = Unit;
+            dynamic u2 = other.Unit;
+
+            double base1 = u1.ConvertToBaseUnit(Value);
+            double base2 = u2.ConvertToBaseUnit(other.Value);
+
+            return Math.Abs(base1 - base2) < 0.000001;
+        }
+
+        public override int GetHashCode()
+        {
+            dynamic unit = Unit;
+            double baseValue = unit.ConvertToBaseUnit(Value);
+            return baseValue.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return $"Quantity({Value}, {Unit})";
         }
     }
 }
