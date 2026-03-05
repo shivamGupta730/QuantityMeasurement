@@ -149,4 +149,102 @@ namespace QuantityMeasurementTests
             l1.Add(null);
         }
     }
+
+
+    [TestClass]
+    public class UC12_SubtractionDivisionTests
+    {
+        private const double EPSILON = 1e-6;
+
+        // ================= SUBTRACTION =================
+
+        [TestMethod]
+        public void Subtraction_SameUnit()
+        {
+            var l1 = new Length(10.0, LengthUnit.Feet);
+            var l2 = new Length(5.0, LengthUnit.Feet);
+
+            var result = l1.Subtract(l2);
+
+            Assert.AreEqual(new Length(5.0, LengthUnit.Feet), result);
+        }
+
+        [TestMethod]
+        public void Subtraction_CrossUnit()
+        {
+            var l1 = new Length(10.0, LengthUnit.Feet);
+            var l2 = new Length(6.0, LengthUnit.Inches);
+
+            var result = l1.Subtract(l2);
+
+            Assert.AreEqual(9.5, result.Value, EPSILON);
+        }
+
+        [TestMethod]
+        public void Subtraction_ResultNegative()
+        {
+            var l1 = new Length(5.0, LengthUnit.Feet);
+            var l2 = new Length(10.0, LengthUnit.Feet);
+
+            var result = l1.Subtract(l2);
+
+            Assert.AreEqual(-5.0, result.Value, EPSILON);
+        }
+
+        [TestMethod]
+        public void Subtraction_ResultZero()
+        {
+            var l1 = new Length(10.0, LengthUnit.Feet);
+            var l2 = new Length(120.0, LengthUnit.Inches);
+
+            var result = l1.Subtract(l2);
+
+            Assert.AreEqual(0.0, result.Value, EPSILON);
+        }
+
+        // ================= DIVISION =================
+
+        [TestMethod]
+        public void Division_SameUnit()
+        {
+            var l1 = new Length(10.0, LengthUnit.Feet);
+            var l2 = new Length(2.0, LengthUnit.Feet);
+
+            double result = l1.Divide(l2);
+
+            Assert.AreEqual(5.0, result, EPSILON);
+        }
+
+        [TestMethod]
+        public void Division_CrossUnit()
+        {
+            var l1 = new Length(24.0, LengthUnit.Inches);
+            var l2 = new Length(2.0, LengthUnit.Feet);
+
+            double result = l1.Divide(l2);
+
+            Assert.AreEqual(1.0, result, EPSILON);
+        }
+
+        [TestMethod]
+        public void Division_ResultLessThanOne()
+        {
+            var l1 = new Length(5.0, LengthUnit.Feet);
+            var l2 = new Length(10.0, LengthUnit.Feet);
+
+            double result = l1.Divide(l2);
+
+            Assert.AreEqual(0.5, result, EPSILON);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArithmeticException))]
+        public void Division_ByZero()
+        {
+            var l1 = new Length(10.0, LengthUnit.Feet);
+            var l2 = new Length(0.0, LengthUnit.Feet);
+
+            l1.Divide(l2);
+        }
+    }
 }
