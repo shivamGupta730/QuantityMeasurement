@@ -19,14 +19,68 @@ namespace QuantityMeasurement
             Unit = unit;
         }
 
+        // ================= ARITHMETIC OPERATION ENUM =================
+
+        private enum ArithmeticOperation
+        {
+            ADD,
+            SUBTRACT,
+            DIVIDE
+        }
+
+        // ================= VALIDATION =================
+
+        private void validateArithmeticOperands(Quantity<U> other, U targetUnit, bool targetRequired)
+        {
+            if (other == null)
+                throw new ArgumentException("Other quantity cannot be null");
+
+            if (targetRequired && targetUnit == null)
+                throw new ArgumentException("Target unit cannot be null");
+
+            if (double.IsNaN(Value) || double.IsInfinity(Value) ||
+                double.IsNaN(other.Value) || double.IsInfinity(other.Value))
+                throw new ArgumentException("Values must be finite numbers");
+        }
+
+        // ================= CORE ARITHMETIC =================
+
+        private double performBaseArithmetic(Quantity<U> other, ArithmeticOperation operation)
+        {
+            dynamic u1 = Unit;
+            dynamic u2 = other.Unit;
+
+            double base1 = u1.ConvertToBaseUnit(Value);
+            double base2 = u2.ConvertToBaseUnit(other.Value);
+
+            switch (operation)
+            {
+                case ArithmeticOperation.ADD:
+                    return base1 + base2;
+
+                case ArithmeticOperation.SUBTRACT:
+                    return base1 - base2;
+
+                case ArithmeticOperation.DIVIDE:
+
+                    if (base2 == 0)
+                        throw new ArithmeticException("Division by zero");
+
+                    return base1 / base2;
+
+                default:
+                    throw new InvalidOperationException("Unknown operation");
+            }
+        }
+
         // ================= CONVERSION =================
 
         public Quantity<U> ConvertTo(U targetUnit)
         {
-            dynamic currentUnit = Unit;
+            dynamic current = Unit;
             dynamic target = targetUnit;
 
-            double baseValue = currentUnit.ConvertToBaseUnit(Value);
+            double baseValue = current.ConvertToBaseUnit(Value);
             double converted = target.ConvertFromBaseUnit(baseValue);
 
             return new Quantity<U>(converted, targetUnit);
@@ -41,19 +95,12 @@ namespace QuantityMeasurement
 
         public Quantity<U> Add(Quantity<U> other, U targetUnit)
         {
-            if (other == null)
-                throw new ArgumentException("Other quantity cannot be null");
+            validateArithmeticOperands(other, targetUnit, true);
 
-            dynamic u1 = Unit;
-            dynamic u2 = other.Unit;
+            double baseResult = performBaseArithmetic(other, ArithmeticOperation.ADD);
+
             dynamic target = targetUnit;
-
-            double base1 = u1.ConvertToBaseUnit(Value);
-            double base2 = u2.ConvertToBaseUnit(other.Value);
-
-            double resultBase = base1 + base2;
-
-            double result = target.ConvertFromBaseUnit(resultBase);
+            double result = target.ConvertFromBaseUnit(baseResult);
 
             return new Quantity<U>(result, targetUnit);
         }
@@ -67,19 +114,12 @@ namespace QuantityMeasurement
 
         public Quantity<U> Subtract(Quantity<U> other, U targetUnit)
         {
-            if (other == null)
-                throw new ArgumentException("Other quantity cannot be null");
+            validateArithmeticOperands(other, targetUnit, true);
 
-            dynamic u1 = Unit;
-            dynamic u2 = other.Unit;
+            double baseResult = performBaseArithmetic(other, ArithmeticOperation.SUBTRACT);
+
             dynamic target = targetUnit;
-
-            double base1 = u1.ConvertToBaseUnit(Value);
-            double base2 = u2.ConvertToBaseUnit(other.Value);
-
-            double resultBase = base1 - base2;
-
-            double result = target.ConvertFromBaseUnit(resultBase);
+            double result = target.ConvertFromBaseUnit(baseResult);
 
             return new Quantity<U>(result, targetUnit);
         }
@@ -88,19 +128,9 @@ namespace QuantityMeasurement
 
         public double Divide(Quantity<U> other)
         {
-            if (other == null)
-                throw new ArgumentException("Other quantity cannot be null");
+            validateArithmeticOperands(other, default(U), false);
 
-            dynamic u1 = Unit;
-            dynamic u2 = other.Unit;
-
-            double base1 = u1.ConvertToBaseUnit(Value);
-            double base2 = u2.ConvertToBaseUnit(other.Value);
-
-            if (base2 == 0)
-                throw new ArithmeticException("Division by zero");
-
-            return base1 / base2;
+            return performBaseArithmetic(other, ArithmeticOperation.DIVIDE);
         }
 
         // ================= EQUALITY =================
