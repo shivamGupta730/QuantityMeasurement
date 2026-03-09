@@ -2,59 +2,64 @@ using System;
 
 namespace QuantityMeasurement
 {
-    public enum VolumeUnit
+    // Class-based volume unit (similar to LengthUnit)
+    public class VolumeUnit : IUnit
     {
-        LITRE,
-        MILLILITRE,
-        GALLON
-    }
+        private readonly double factor;
 
-    public static class VolumeUnitExtensions
-    {
-        public static double GetConversionFactor(this VolumeUnit unit)
+        // Lambda expression to indicate that VolumeUnit supports arithmetic operations
+        public static readonly SupportsArithmeticHandler supportsArithmetic = () => true;
+
+        private VolumeUnit(double factor)
         {
-            switch (unit)
-            {
-                case VolumeUnit.LITRE:
-                    return 1.0;
-
-                case VolumeUnit.MILLILITRE:
-                    return 0.001;
-
-                case VolumeUnit.GALLON:
-                    return 3.78541;
-
-                default:
-                    throw new ArgumentException("Invalid Volume Unit");
-            }
+            this.factor = factor;
         }
 
-        public static double ConvertToBaseUnit(this VolumeUnit unit, double value)
+        // Base unit = Litre
+        public static readonly VolumeUnit Litre = new VolumeUnit(1.0);
+        public static readonly VolumeUnit Millilitre = new VolumeUnit(0.001);
+        public static readonly VolumeUnit Gallon = new VolumeUnit(3.78541);
+
+        public double GetConversionFactor()
         {
-            return value * unit.GetConversionFactor();
+            return factor;
         }
 
-        public static double ConvertFromBaseUnit(this VolumeUnit unit, double baseValue)
+        public double ConvertToBaseUnit(double value)
         {
-            return baseValue / unit.GetConversionFactor();
+            return value * factor;
         }
 
-        public static string GetUnitName(this VolumeUnit unit)
+        public double ConvertFromBaseUnit(double baseValue)
         {
-            switch (unit)
-            {
-                case VolumeUnit.LITRE:
-                    return "Litre";
+            return baseValue / factor;
+        }
 
-                case VolumeUnit.MILLILITRE:
-                    return "Millilitre";
+        public string GetUnitName()
+        {
+            if (factor == 1.0) return "Litre";
+            if (factor == 0.001) return "Millilitre";
+            return "Gallon";
+        }
 
-                case VolumeUnit.GALLON:
-                    return "Gallon";
+        // Implementation of IUnit method for operation support
+        public bool supportsArithmeticOperation()
+        {
+            return supportsArithmetic();
+        }
 
-                default:
-                    return "Unknown";
-            }
+        // Validate operation support - VolumeUnit supports all operations
+        public void validateOperationSupport(string operation)
+        {
+            // VolumeUnit supports all operations, so no validation needed
+        }
+
+        public override string ToString()
+        {
+            if (factor == 1.0) return "Litre";
+            if (factor == 0.001) return "Millilitre";
+            return "Gallon";
         }
     }
 }
+

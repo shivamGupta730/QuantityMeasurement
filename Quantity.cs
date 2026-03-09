@@ -43,6 +43,24 @@ namespace QuantityMeasurement
                 throw new ArgumentException("Values must be finite numbers");
         }
 
+        // ================= OPERATION SUPPORT VALIDATION =================
+
+        private void validateOperationSupport(ArithmeticOperation operation)
+        {
+            // Try to call validateOperationSupport on the unit
+            // This works for LengthUnit (class) and enums with extension methods
+            dynamic unit = Unit;
+            try
+            {
+                unit.validateOperationSupport(operation.ToString());
+            }
+            catch (Exception ex) when (ex.GetType().Name == "MissingMethodException" || 
+                                       ex.GetType().Name == "RuntimeBinderException")
+            {
+                // If the method doesn't exist (older implementations), allow the operation
+            }
+        }
+
         // ================= CORE ARITHMETIC =================
 
         private double performBaseArithmetic(Quantity<U> other, ArithmeticOperation operation)
@@ -83,7 +101,7 @@ namespace QuantityMeasurement
             double baseValue = current.ConvertToBaseUnit(Value);
             double converted = target.ConvertFromBaseUnit(baseValue);
 
-            return new Quantity<U>(converted, targetUnit);
+            return new Quantity<U>(Math.Round(converted, 2), targetUnit);
         }
 
         // ================= ADDITION =================
@@ -96,13 +114,16 @@ namespace QuantityMeasurement
         public Quantity<U> Add(Quantity<U> other, U targetUnit)
         {
             validateArithmeticOperands(other, targetUnit, true);
+            
+            // Validate that this unit type supports arithmetic operations
+            validateOperationSupport(ArithmeticOperation.ADD);
 
             double baseResult = performBaseArithmetic(other, ArithmeticOperation.ADD);
 
             dynamic target = targetUnit;
             double result = target.ConvertFromBaseUnit(baseResult);
 
-            return new Quantity<U>(result, targetUnit);
+            return new Quantity<U>(Math.Round(result, 2), targetUnit);
         }
 
         // ================= SUBTRACTION =================
@@ -115,13 +136,16 @@ namespace QuantityMeasurement
         public Quantity<U> Subtract(Quantity<U> other, U targetUnit)
         {
             validateArithmeticOperands(other, targetUnit, true);
+            
+            // Validate that this unit type supports arithmetic operations
+            validateOperationSupport(ArithmeticOperation.SUBTRACT);
 
             double baseResult = performBaseArithmetic(other, ArithmeticOperation.SUBTRACT);
 
             dynamic target = targetUnit;
             double result = target.ConvertFromBaseUnit(baseResult);
 
-            return new Quantity<U>(result, targetUnit);
+            return new Quantity<U>(Math.Round(result, 2), targetUnit);
         }
 
         // ================= DIVISION =================
@@ -129,6 +153,9 @@ namespace QuantityMeasurement
         public double Divide(Quantity<U> other)
         {
             validateArithmeticOperands(other, default(U), false);
+            
+            // Validate that this unit type supports arithmetic operations
+            validateOperationSupport(ArithmeticOperation.DIVIDE);
 
             return performBaseArithmetic(other, ArithmeticOperation.DIVIDE);
         }
@@ -141,6 +168,10 @@ namespace QuantityMeasurement
                 return false;
 
             Quantity<U> other = (Quantity<U>)obj;
+
+            // Check if units are of the same category (same type)
+            if (Unit.GetType() != other.Unit.GetType())
+                return false;
 
             dynamic u1 = Unit;
             dynamic u2 = other.Unit;
@@ -164,3 +195,4 @@ namespace QuantityMeasurement
         }
     }
 }
+

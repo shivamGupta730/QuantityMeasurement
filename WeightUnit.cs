@@ -1,40 +1,57 @@
+using System;
+
 namespace QuantityMeasurement
 {
-    // Enum representing weight units
-    public enum WeightUnit
+    // Class-based weight unit (similar to LengthUnit)
+    public class WeightUnit : IUnit
     {
-        Kilogram,
-        Gram
-    }
+        private readonly double factor;
 
-    public static class WeightUnitExtensions
-    {
-        // Conversion factor relative to base unit (GRAM)
-        public static double GetConversionFactor(this WeightUnit unit)
+        // Lambda expression to indicate that WeightUnit supports arithmetic operations
+        public static readonly SupportsArithmeticHandler supportsArithmetic = () => true;
+
+        private WeightUnit(double factor)
         {
-            switch (unit)
-            {
-                case WeightUnit.Kilogram: return 1000.0;
-                case WeightUnit.Gram: return 1.0;
-                default: return 1.0;
-            }
+            this.factor = factor;
         }
 
-        // Convert given value to base unit (GRAM)
-        public static double ConvertToBaseUnit(this WeightUnit unit, double value)
+        // Base unit = Gram
+        public static readonly WeightUnit Kilogram = new WeightUnit(1000.0);
+        public static readonly WeightUnit Gram = new WeightUnit(1.0);
+
+        public double ConvertToBaseUnit(double value)
         {
-            return value * unit.GetConversionFactor();
+            return value * factor;
         }
 
-        // Convert from base unit (GRAM) to target unit
-        public static double ConvertFromBaseUnit(this WeightUnit unit, double baseValue)
+        public double ConvertFromBaseUnit(double baseValue)
         {
-            return baseValue / unit.GetConversionFactor();
+            return baseValue / factor;
         }
 
-        public static string GetUnitName(this WeightUnit unit)
+        public string GetUnitName()
         {
-            return unit.ToString();
+            if (factor == 1000.0) return "Kilogram";
+            return "Gram";
+        }
+
+        // Implementation of IUnit method for operation support
+        public bool supportsArithmeticOperation()
+        {
+            return supportsArithmetic();
+        }
+
+        // Validate operation support - WeightUnit supports all operations
+        public void validateOperationSupport(string operation)
+        {
+            // WeightUnit supports all operations, so no validation needed
+        }
+
+        public override string ToString()
+        {
+            if (factor == 1000.0) return "Kilogram";
+            return "Gram";
         }
     }
 }
+
