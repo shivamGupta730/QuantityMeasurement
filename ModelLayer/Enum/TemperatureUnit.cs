@@ -1,9 +1,9 @@
 using System;
 
-namespace QuantityMeasurement
+namespace ModelLayer
 {
     // Class-based temperature unit
-    public class TemperatureUnit : IUnit
+public class TemperatureUnit 
     {
         // Lambda expression to indicate that TemperatureUnit does NOT support arithmetic operations
         public static readonly SupportsArithmeticHandler supportsArithmetic = () => false;

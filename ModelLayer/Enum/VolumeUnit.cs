@@ -1,9 +1,9 @@
 using System;
 
-namespace QuantityMeasurement
+namespace ModelLayer
 {
     // Class-based volume unit (similar to LengthUnit)
-    public class VolumeUnit : IUnit
+public class VolumeUnit 
     {
         private readonly double factor;
 

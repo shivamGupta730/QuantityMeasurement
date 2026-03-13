@@ -1,6 +1,6 @@
 using System;
 
-namespace QuantityMeasurement
+namespace ModelLayer.Entity
 {
     public class Quantity<U>
     {
@@ -162,7 +162,7 @@ namespace QuantityMeasurement
 
         // ================= EQUALITY =================
 
-        public override bool Equals(object obj)
+public override bool Equals(object? obj)
         {
             if (obj == null || !(obj is Quantity<U>))
                 return false;

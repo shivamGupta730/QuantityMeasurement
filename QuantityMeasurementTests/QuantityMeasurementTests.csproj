@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\QuantityMeasurement.csproj" />
+   <ProjectReference Include="..\QuantityMeasurement\QuantityMeasurement.csproj" />
   </ItemGroup>
 
 </Project>

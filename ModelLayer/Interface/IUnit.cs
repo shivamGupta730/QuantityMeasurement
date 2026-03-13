@@ -1,6 +1,6 @@
 using System;
 
-namespace QuantityMeasurement
+namespace ModelLayer
 {
     // Functional interface (delegate) to indicate whether a measurable unit supports arithmetic operations
     public delegate bool SupportsArithmeticHandler();

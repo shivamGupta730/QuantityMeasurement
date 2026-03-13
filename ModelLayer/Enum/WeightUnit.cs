@@ -1,9 +1,9 @@
 using System;
 
-namespace QuantityMeasurement
+namespace ModelLayer
 {
     // Class-based weight unit (similar to LengthUnit)
-    public class WeightUnit : IUnit
+public class WeightUnit 
     {
         private readonly double factor;
 

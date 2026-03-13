@@ -1,8 +1,8 @@
 using System;
 
-namespace QuantityMeasurement
+namespace ModelLayer
 {
-    public class LengthUnit : IUnit
+public class LengthUnit 
     {
         private readonly double factor;
 
