@@ -303,68 +303,73 @@ LengthUnit? sourceUnit = GetLengthUnit(unitChoice1) ?? LengthUnit.Feet;
         // ================= VOLUME OPERATIONS =================
 
         private void PerformVolumeConversion()
-        {
-            Console.WriteLine("\n--- Volume Conversion ---");
-            Console.WriteLine("Available units: 1. Litre, 2. Millilitre, 3. Gallon");
+{
+    Console.WriteLine("\n--- Volume Conversion ---");
+    Console.WriteLine("Available units: 1. Litre, 2. Millilitre, 3. Gallon");
 
-            double value = GetDoubleInput("Enter value: ");
-            int unitChoice1 = GetIntInput("Enter source unit (1-3): ");
-            int unitChoice2 = GetIntInput("Enter target unit (1-3): ");
+    double value = GetDoubleInput("Enter value: ");
+    int unitChoice1 = GetIntInput("Enter source unit (1-3): ");
+    int unitChoice2 = GetIntInput("Enter target unit (1-3): ");
 
-            VolumeUnit sourceUnit = GetVolumeUnit(unitChoice1);
-            VolumeUnit targetUnit = GetVolumeUnit(unitChoice2);
+    VolumeUnit sourceUnit = GetVolumeUnit(unitChoice1);
+    VolumeUnit targetUnit = GetVolumeUnit(unitChoice2);
 
-            Quantity<VolumeUnit> quantity = new Quantity<VolumeUnit>(value, sourceUnit);
-            Quantity<VolumeUnit> converted = quantity.ConvertTo(targetUnit);
+    Quantity<VolumeUnit> quantity = new Quantity<VolumeUnit>(value, sourceUnit);
 
-            Console.WriteLine($"\nResult: {value} {sourceUnit} = {converted.Value} {targetUnit}");
-        }
+    Quantity<VolumeUnit> converted = _service.ConvertVolume(quantity, targetUnit);
+
+    Console.WriteLine($"\nResult: {value} {sourceUnit} = {converted.Value} {targetUnit}");
+}
 
         private void PerformVolumeAddition()
-        {
-            Console.WriteLine("\n--- Volume Addition ---");
-            Console.WriteLine("Available units: 1. Litre, 2. Millilitre, 3. Gallon");
+{
+    Console.WriteLine("\n--- Volume Addition ---");
+    Console.WriteLine("Available units: 1. Litre, 2. Millilitre, 3. Gallon");
 
-            double value1 = GetDoubleInput("Enter first value: ");
-            int unitChoice1 = GetIntInput("Enter first unit (1-3): ");
-            double value2 = GetDoubleInput("Enter second value: ");
-            int unitChoice2 = GetIntInput("Enter second unit (1-3): ");
-            int targetChoice = GetIntInput("Enter target unit for result (1-3): ");
+    double value1 = GetDoubleInput("Enter first value: ");
+    int unitChoice1 = GetIntInput("Enter first unit (1-3): ");
 
-            VolumeUnit unit1 = GetVolumeUnit(unitChoice1);
-            VolumeUnit unit2 = GetVolumeUnit(unitChoice2);
-            VolumeUnit targetUnit = GetVolumeUnit(targetChoice);
+    double value2 = GetDoubleInput("Enter second value: ");
+    int unitChoice2 = GetIntInput("Enter second unit (1-3): ");
 
-            Quantity<VolumeUnit> q1 = new Quantity<VolumeUnit>(value1, unit1);
-            Quantity<VolumeUnit> q2 = new Quantity<VolumeUnit>(value2, unit2);
+    int targetChoice = GetIntInput("Enter target unit (1-3): ");
 
-            Quantity<VolumeUnit> result = q1.Add(q2, targetUnit);
+    VolumeUnit unit1 = GetVolumeUnit(unitChoice1);
+    VolumeUnit unit2 = GetVolumeUnit(unitChoice2);
+    VolumeUnit targetUnit = GetVolumeUnit(targetChoice);
 
-            Console.WriteLine($"\nResult: {value1} {unit1} + {value2} {unit2} = {result.Value} {targetUnit}");
-        }
+    Quantity<VolumeUnit> q1 = new Quantity<VolumeUnit>(value1, unit1);
+    Quantity<VolumeUnit> q2 = new Quantity<VolumeUnit>(value2, unit2);
 
-        private void PerformVolumeSubtraction()
-        {
-            Console.WriteLine("\n--- Volume Subtraction ---");
-            Console.WriteLine("Available units: 1. Litre, 2. Millilitre, 3. Gallon");
+    Quantity<VolumeUnit> result = _service.AddVolumes(q1, q2, targetUnit);
 
-            double value1 = GetDoubleInput("Enter first value: ");
-            int unitChoice1 = GetIntInput("Enter first unit (1-3): ");
-            double value2 = GetDoubleInput("Enter second value: ");
-            int unitChoice2 = GetIntInput("Enter second unit (1-3): ");
-            int targetChoice = GetIntInput("Enter target unit for result (1-3): ");
+    Console.WriteLine($"\nResult: {result.Value} {targetUnit}");
+}
 
-            VolumeUnit unit1 = GetVolumeUnit(unitChoice1);
-            VolumeUnit unit2 = GetVolumeUnit(unitChoice2);
-            VolumeUnit targetUnit = GetVolumeUnit(targetChoice);
+       private void PerformVolumeSubtraction()
+{
+    Console.WriteLine("\n--- Volume Subtraction ---");
+    Console.WriteLine("Available units: 1. Litre, 2. Millilitre, 3. Gallon");
 
-            Quantity<VolumeUnit> q1 = new Quantity<VolumeUnit>(value1, unit1);
-            Quantity<VolumeUnit> q2 = new Quantity<VolumeUnit>(value2, unit2);
+    double value1 = GetDoubleInput("Enter first value: ");
+    int unitChoice1 = GetIntInput("Enter first unit (1-3): ");
 
-            Quantity<VolumeUnit> result = q1.Subtract(q2, targetUnit);
+    double value2 = GetDoubleInput("Enter second value: ");
+    int unitChoice2 = GetIntInput("Enter second unit (1-3): ");
 
-            Console.WriteLine($"\nResult: {value1} {unit1} - {value2} {unit2} = {result.Value} {targetUnit}");
-        }
+    int targetChoice = GetIntInput("Enter target unit (1-3): ");
+
+    VolumeUnit unit1 = GetVolumeUnit(unitChoice1);
+    VolumeUnit unit2 = GetVolumeUnit(unitChoice2);
+    VolumeUnit targetUnit = GetVolumeUnit(targetChoice);
+
+    Quantity<VolumeUnit> q1 = new Quantity<VolumeUnit>(value1, unit1);
+    Quantity<VolumeUnit> q2 = new Quantity<VolumeUnit>(value2, unit2);
+
+    Quantity<VolumeUnit> result = _service.SubtractVolumes(q1, q2, targetUnit);
+
+    Console.WriteLine($"\nResult: {result.Value} {targetUnit}");
+}
 
         private void PerformVolumeEquality()
         {
@@ -389,23 +394,24 @@ LengthUnit? sourceUnit = GetLengthUnit(unitChoice1) ?? LengthUnit.Feet;
 
         // ================= WEIGHT OPERATIONS =================
 
-        private void PerformWeightConversion()
-        {
-            Console.WriteLine("\n--- Weight Conversion ---");
-            Console.WriteLine("Available units: 1. Kilogram, 2. Gram");
+       private void PerformWeightConversion()
+{
+    Console.WriteLine("\n--- Weight Conversion ---");
+     Console.WriteLine("Available units: 1. Kilogram, 2. Gram");
 
-            double value = GetDoubleInput("Enter value: ");
-            int unitChoice1 = GetIntInput("Enter source unit (1-2): ");
-            int unitChoice2 = GetIntInput("Enter target unit (1-2): ");
+    double value = GetDoubleInput("Enter value: ");
+    int unitChoice1 = GetIntInput("Enter source unit (1-2): ");
+    int unitChoice2 = GetIntInput("Enter target unit (1-2): ");
 
-            WeightUnit sourceUnit = GetWeightUnit(unitChoice1);
-            WeightUnit targetUnit = GetWeightUnit(unitChoice2);
+    WeightUnit sourceUnit = GetWeightUnit(unitChoice1);
+    WeightUnit targetUnit = GetWeightUnit(unitChoice2);
 
-            Quantity<WeightUnit> quantity = new Quantity<WeightUnit>(value, sourceUnit);
-            Quantity<WeightUnit> converted = quantity.ConvertTo(targetUnit);
+    Quantity<WeightUnit> quantity = new Quantity<WeightUnit>(value, sourceUnit);
 
-            Console.WriteLine($"\nResult: {value} {sourceUnit} = {converted.Value} {targetUnit}");
-        }
+    Quantity<WeightUnit> converted = _service.ConvertWeight(quantity, targetUnit);
+
+    Console.WriteLine($"\nResult: {converted.Value} {targetUnit}");
+}
 
         private void PerformWeightAddition()
         {
@@ -477,22 +483,23 @@ LengthUnit? sourceUnit = GetLengthUnit(unitChoice1) ?? LengthUnit.Feet;
         // ================= TEMPERATURE OPERATIONS =================
 
         private void PerformTemperatureConversion()
-        {
-            Console.WriteLine("\n--- Temperature Conversion ---");
-            Console.WriteLine("Available units: 1. Celsius, 2. Fahrenheit, 3. Kelvin");
+{
+    Console.WriteLine("\n--- Temperature Conversion ---");
+     Console.WriteLine("Available units: 1. Celsius, 2. Fahrenheit, 3. Kelvin");
 
-            double value = GetDoubleInput("Enter value: ");
-            int unitChoice1 = GetIntInput("Enter source unit (1-3): ");
-            int unitChoice2 = GetIntInput("Enter target unit (1-3): ");
+    double value = GetDoubleInput("Enter value: ");
+    int unitChoice1 = GetIntInput("Enter source unit (1-3): ");
+    int unitChoice2 = GetIntInput("Enter target unit (1-3): ");
 
-            TemperatureUnit sourceUnit = GetTemperatureUnit(unitChoice1);
-            TemperatureUnit targetUnit = GetTemperatureUnit(unitChoice2);
+    TemperatureUnit sourceUnit = GetTemperatureUnit(unitChoice1);
+    TemperatureUnit targetUnit = GetTemperatureUnit(unitChoice2);
 
-            Quantity<TemperatureUnit> quantity = new Quantity<TemperatureUnit>(value, sourceUnit);
-            Quantity<TemperatureUnit> converted = quantity.ConvertTo(targetUnit);
+    Quantity<TemperatureUnit> quantity = new Quantity<TemperatureUnit>(value, sourceUnit);
 
-            Console.WriteLine($"\nResult: {value} {sourceUnit} = {converted.Value} {targetUnit}");
-        }
+    Quantity<TemperatureUnit> converted = _service.ConvertTemperature(quantity, targetUnit);
+
+    Console.WriteLine($"\nResult: {value} {sourceUnit} = {converted.Value} {targetUnit}");
+}
 
         private void PerformTemperatureEquality()
         {
