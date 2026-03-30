@@ -1,31 +1,28 @@
-using System;
-using ModelLayer.Entity;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using ModelLayer;
+using ModelLayer.Enum;
+using ModelLayer.Entity;
 
 namespace BusinessLayer.Services
 {
     public interface IQuantityMeasurementService
     {
-        // Length operations
-        Quantity<LengthUnit> ConvertLength(Quantity<LengthUnit> quantity, LengthUnit targetUnit);
-        Quantity<LengthUnit> AddLengths(Quantity<LengthUnit> q1, Quantity<LengthUnit> q2, LengthUnit targetUnit);
-        Quantity<LengthUnit> SubtractLengths(Quantity<LengthUnit> q1, Quantity<LengthUnit> q2, LengthUnit targetUnit);
-        bool AreLengthsEqual(Quantity<LengthUnit> q1, Quantity<LengthUnit> q2);
+        Task<Quantity<LengthUnit>> ConvertLengthAsync(Quantity<LengthUnit> quantity, LengthUnit targetUnit);
+        Task<Quantity<LengthUnit>> AddLengthsAsync(Quantity<LengthUnit> q1, Quantity<LengthUnit> q2, LengthUnit targetUnit);
 
-        // Volume operations
-        Quantity<VolumeUnit> ConvertVolume(Quantity<VolumeUnit> quantity, VolumeUnit targetUnit);
-        Quantity<VolumeUnit> AddVolumes(Quantity<VolumeUnit> q1, Quantity<VolumeUnit> q2, VolumeUnit targetUnit);
-        Quantity<VolumeUnit> SubtractVolumes(Quantity<VolumeUnit> q1, Quantity<VolumeUnit> q2, VolumeUnit targetUnit);
-        bool AreVolumesEqual(Quantity<VolumeUnit> q1, Quantity<VolumeUnit> q2);
+        Task<Quantity<VolumeUnit>> ConvertVolumeAsync(Quantity<VolumeUnit> quantity, VolumeUnit targetUnit);
+        Task<Quantity<VolumeUnit>> AddVolumesAsync(Quantity<VolumeUnit> q1, Quantity<VolumeUnit> q2, VolumeUnit targetUnit);
 
-        // Weight operations
-        Quantity<WeightUnit> ConvertWeight(Quantity<WeightUnit> quantity, WeightUnit targetUnit);
-        Quantity<WeightUnit> AddWeights(Quantity<WeightUnit> q1, Quantity<WeightUnit> q2, WeightUnit targetUnit);
-        Quantity<WeightUnit> SubtractWeights(Quantity<WeightUnit> q1, Quantity<WeightUnit> q2, WeightUnit targetUnit);
-        bool AreWeightsEqual(Quantity<WeightUnit> q1, Quantity<WeightUnit> q2);
+        Task<Quantity<WeightUnit>> ConvertWeightAsync(Quantity<WeightUnit> quantity, WeightUnit targetUnit);
+        Task<Quantity<WeightUnit>> AddWeightsAsync(Quantity<WeightUnit> q1, Quantity<WeightUnit> q2, WeightUnit targetUnit);
 
-        // Temperature operations
-        Quantity<TemperatureUnit> ConvertTemperature(Quantity<TemperatureUnit> quantity, TemperatureUnit targetUnit);
-        bool AreTemperaturesEqual(Quantity<TemperatureUnit> q1, Quantity<TemperatureUnit> q2);
+        Task<Quantity<TemperatureUnit>> ConvertTemperatureAsync(Quantity<TemperatureUnit> quantity, TemperatureUnit targetUnit);
+
+        Task<List<MeasurementRecord>> GetHistoryByOperationAsync(OperationType operation);
+        Task<List<MeasurementRecord>> GetHistoryByMeasurementTypeAsync(MeasurementType type);
+        Task<List<MeasurementRecord>> GetErrorHistoryAsync();
+
+        Task<int> GetOperationCountAsync(OperationType operation);
     }
 }

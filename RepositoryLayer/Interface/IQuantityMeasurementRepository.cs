@@ -1,13 +1,14 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using ModelLayer.Entity;
 
 namespace RepositoryLayer.Interface
 {
     public interface IQuantityMeasurementRepository
     {
-        void SaveMeasurement(MeasurementRecord record);
-        List<MeasurementRecord> GetAllMeasurements();
-        int GetTotalCount();
-        void DeleteAllMeasurements();
+        Task SaveMeasurementAsync(MeasurementRecord record);
+        Task<List<MeasurementRecord>> GetAllMeasurementsAsync();
+        Task<int> GetTotalCountAsync();
+        Task DeleteAllMeasurementsAsync();
     }
 }

@@ -10,26 +10,31 @@ namespace QuantityMeasurementAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Microsoft.AspNetCore.Authorization.Authorize]
 public class MeasurementController : ControllerBase
 {
     private readonly IQuantityMeasurementService _service;
+    private readonly ILogger<MeasurementController> _logger;
 
-    public MeasurementController(IQuantityMeasurementService service)
+    public MeasurementController(IQuantityMeasurementService service, ILogger<MeasurementController> logger)
     {
         _service = service;
+        _logger = logger;
     }
 
     // Length endpoints
     [HttpPost("convert-length")]
-    public IActionResult ConvertLength([FromBody] MeasurementRequestDto request)
+    public async Task<IActionResult> ConvertLengthAsync([FromBody] MeasurementRequestDto request)
     {
         try 
         {
+            _logger.LogInformation("Length conversion request started: {Value} {SourceUnit} -> {TargetUnit}", request.Value, request.SourceUnit, request.TargetUnit);
             var sourceUnit = ParseLengthUnit(request.SourceUnit);
             var targetUnit = ParseLengthUnit(request.TargetUnit);
             var quantity = new Quantity<LengthUnit>(request.Value, sourceUnit);
-            var result = _service.ConvertLength(quantity, targetUnit);
+            var result = await _service.ConvertLengthAsync(quantity, targetUnit);
             
+            _logger.LogInformation("Length conversion request completed successfully");
             return Ok(new MeasurementResultDto 
             { 
                 Value = result.Value, 
@@ -38,12 +43,13 @@ public class MeasurementController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Length conversion request failed: {Value} {SourceUnit} -> {TargetUnit}", request.Value, request.SourceUnit, request.TargetUnit);
             return BadRequest(ex.Message);
         }
     }
 
-    [HttpPost("add-lengths")]
-    public IActionResult AddLengths([FromBody] AddMeasurementRequestDto request)
+[HttpPost("add-lengths")]
+    public async Task<IActionResult> AddLengthsAsync([FromBody] AddMeasurementRequestDto request)
     {
         try 
         {
@@ -52,7 +58,7 @@ public class MeasurementController : ControllerBase
             var targetUnit = ParseLengthUnit(request.TargetUnit);
             var q1 = new Quantity<LengthUnit>(request.Value1, unit1);
             var q2 = new Quantity<LengthUnit>(request.Value2, unit2);
-            var result = _service.AddLengths(q1, q2, targetUnit);
+            var result = await _service.AddLengthsAsync(q1, q2, targetUnit);
             
             return Ok(new MeasurementResultDto 
             { 
@@ -67,15 +73,15 @@ public class MeasurementController : ControllerBase
     }
 
     // Volume endpoints
-    [HttpPost("convert-volume")]
-    public IActionResult ConvertVolume([FromBody] MeasurementRequestDto request)
+[HttpPost("convert-volume")]
+    public async Task<IActionResult> ConvertVolumeAsync([FromBody] MeasurementRequestDto request)
     {
         try 
         {
             var sourceUnit = ParseVolumeUnit(request.SourceUnit);
             var targetUnit = ParseVolumeUnit(request.TargetUnit);
             var quantity = new Quantity<VolumeUnit>(request.Value, sourceUnit);
-            var result = _service.ConvertVolume(quantity, targetUnit);
+            var result = await _service.ConvertVolumeAsync(quantity, targetUnit);
             
             return Ok(new MeasurementResultDto 
             { 
@@ -89,8 +95,8 @@ public class MeasurementController : ControllerBase
         }
     }
 
-    [HttpPost("add-volumes")]
-    public IActionResult AddVolumes([FromBody] AddMeasurementRequestDto request)
+[HttpPost("add-volumes")]
+    public async Task<IActionResult> AddVolumesAsync([FromBody] AddMeasurementRequestDto request)
     {
         try 
         {
@@ -99,7 +105,7 @@ public class MeasurementController : ControllerBase
             var targetUnit = ParseVolumeUnit(request.TargetUnit);
             var q1 = new Quantity<VolumeUnit>(request.Value1, unit1);
             var q2 = new Quantity<VolumeUnit>(request.Value2, unit2);
-            var result = _service.AddVolumes(q1, q2, targetUnit);
+            var result = await _service.AddVolumesAsync(q1, q2, targetUnit);
             
             return Ok(new MeasurementResultDto 
             { 
@@ -125,15 +131,15 @@ public class MeasurementController : ControllerBase
     }
 
     // Weight endpoints
-    [HttpPost("convert-weight")]
-    public IActionResult ConvertWeight([FromBody] MeasurementRequestDto request)
+[HttpPost("convert-weight")]
+    public async Task<IActionResult> ConvertWeightAsync([FromBody] MeasurementRequestDto request)
     {
         try 
         {
             var sourceUnit = ParseWeightUnit(request.SourceUnit);
             var targetUnit = ParseWeightUnit(request.TargetUnit);
             var quantity = new Quantity<WeightUnit>(request.Value, sourceUnit);
-            var result = _service.ConvertWeight(quantity, targetUnit);
+            var result = await _service.ConvertWeightAsync(quantity, targetUnit);
             
             return Ok(new MeasurementResultDto 
             { 
@@ -147,8 +153,8 @@ public class MeasurementController : ControllerBase
         }
     }
 
-    [HttpPost("add-weights")]
-    public IActionResult AddWeights([FromBody] AddMeasurementRequestDto request)
+[HttpPost("add-weights")]
+    public async Task<IActionResult> AddWeightsAsync([FromBody] AddMeasurementRequestDto request)
     {
         try 
         {
@@ -157,7 +163,7 @@ public class MeasurementController : ControllerBase
             var targetUnit = ParseWeightUnit(request.TargetUnit);
             var q1 = new Quantity<WeightUnit>(request.Value1, unit1);
             var q2 = new Quantity<WeightUnit>(request.Value2, unit2);
-            var result = _service.AddWeights(q1, q2, targetUnit);
+            var result = await _service.AddWeightsAsync(q1, q2, targetUnit);
             
             return Ok(new MeasurementResultDto 
             { 
@@ -182,25 +188,25 @@ public class MeasurementController : ControllerBase
     }
 
     // Subtract endpoints (reuse add logic with negative value2)
-    [HttpPost("subtract-lengths")]
-    public IActionResult SubtractLengths([FromBody] AddMeasurementRequestDto request)
+[HttpPost("subtract-lengths")]
+    public async Task<IActionResult> SubtractLengthsAsync([FromBody] AddMeasurementRequestDto request)
     {
         request.Value2 *= -1;
-        return AddLengths(request);
+        return await AddLengthsAsync(request);
     }
 
-    [HttpPost("subtract-volumes")]
-    public IActionResult SubtractVolumes([FromBody] AddMeasurementRequestDto request)
+[HttpPost("subtract-volumes")]
+    public async Task<IActionResult> SubtractVolumesAsync([FromBody] AddMeasurementRequestDto request)
     {
         request.Value2 *= -1;
-        return AddVolumes(request);
+        return await AddVolumesAsync(request);
     }
 
-    [HttpPost("subtract-weights")]
-    public IActionResult SubtractWeights([FromBody] AddMeasurementRequestDto request)
+[HttpPost("subtract-weights")]
+    public async Task<IActionResult> SubtractWeightsAsync([FromBody] AddMeasurementRequestDto request)
     {
         request.Value2 *= -1;
-        return AddWeights(request);
+        return await AddWeightsAsync(request);
     }
 
     // Compare endpoints
@@ -301,15 +307,15 @@ public class MeasurementController : ControllerBase
     }
 
     // Temperature endpoints
-    [HttpPost("convert-temperature")]
-    public IActionResult ConvertTemperature([FromBody] MeasurementRequestDto request)
+[HttpPost("convert-temperature")]
+    public async Task<IActionResult> ConvertTemperatureAsync([FromBody] MeasurementRequestDto request)
     {
         try 
         {
             var sourceUnit = ParseTemperatureUnit(request.SourceUnit);
             var targetUnit = ParseTemperatureUnit(request.TargetUnit);
             var quantity = new Quantity<TemperatureUnit>(request.Value, sourceUnit);
-            var result = _service.ConvertTemperature(quantity, targetUnit);
+            var result = await _service.ConvertTemperatureAsync(quantity, targetUnit);
             
             return Ok(new MeasurementResultDto 
             { 

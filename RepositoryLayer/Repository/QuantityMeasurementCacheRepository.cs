@@ -1,32 +1,45 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ModelLayer.Entity;
 using RepositoryLayer.Interface;
+using Microsoft.Extensions.Logging;
 
 namespace RepositoryLayer.Repository
 {
     public class QuantityMeasurementCacheRepository : IQuantityMeasurementRepository
     {
         private readonly List<MeasurementRecord> _measurements = new();
+        private readonly ILogger<QuantityMeasurementCacheRepository> _logger;
 
-        public void SaveMeasurement(MeasurementRecord record)
+        public QuantityMeasurementCacheRepository(ILogger<QuantityMeasurementCacheRepository> logger)
+        {
+            _logger = logger;
+        }
+
+        public Task SaveMeasurementAsync(MeasurementRecord record)
         {
             _measurements.Add(record);
+            _logger.LogInformation("Saved measurement to cache: {FromUnit} -> {ToUnit}", record.FromUnit, record.ToUnit);
+            return Task.CompletedTask;
         }
 
-        public List<MeasurementRecord> GetAllMeasurements()
+        public Task<List<MeasurementRecord>> GetAllMeasurementsAsync()
         {
-            return _measurements.ToList();
+            _logger.LogInformation("Fetched {Count} cache measurements", _measurements.Count);
+            return Task.FromResult(_measurements.OrderByDescending(m => m.ConversionDateTime).ToList());
         }
 
-        public int GetTotalCount()
+        public Task<int> GetTotalCountAsync()
         {
-            return _measurements.Count;
+            return Task.FromResult(_measurements.Count);
         }
 
-        public void DeleteAllMeasurements()
+        public Task DeleteAllMeasurementsAsync()
         {
             _measurements.Clear();
+            _logger.LogInformation("Cleared all cache measurements");
+            return Task.CompletedTask;
         }
     }
 }
