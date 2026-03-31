@@ -8,6 +8,8 @@ using System.Security.Claims;
 using QuantityMeasurementAPI.DTOs;
 using BCrypt.Net;
 using System.Text;
+using Google.Apis.Auth;
+using Microsoft.EntityFrameworkCore;
 
 namespace QuantityMeasurementAPI.Controllers
 {
@@ -99,6 +101,99 @@ public AuthController(AppDbContext context, IConfiguration configuration, ILogge
                 _logger.LogError(ex, "Login failed for email: {Email}", request.Email);
                 return StatusCode(500, "Internal server error");
             }
+        }
+
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto request)
+        {
+            try
+            {
+                _logger.LogInformation("Google login attempt for id_token length: {Length}", request.IdToken.Length);
+
+                var clientId = _configuration["Google:ClientId"];
+                if (string.IsNullOrEmpty(clientId))
+                {
+                    return BadRequest("Google ClientId not configured");
+                }
+
+                var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { clientId }
+                });
+
+                var email = payload.Email;
+                var name = payload.Name ?? "";
+                var googleSub = payload.Subject;
+
+                _logger.LogInformation("Validated Google token for email: {Email}", email);
+
+                var appUser = await _context.ApplicationUsers.FirstOrDefaultAsync(u => u.Email == email);
+                if (appUser == null)
+                {
+                    _logger.LogInformation("Creating new ApplicationUser for Google: {Email}", email);
+                    appUser = new ApplicationUser
+                    {
+                        Id = googleSub,
+                        Email = email,
+                        FullName = name,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.ApplicationUsers.Add(appUser);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    _logger.LogInformation("Existing ApplicationUser found for Google: {Email}", email);
+                }
+
+                var token = GenerateJwtToken(appUser);
+                var response = new AuthResponseDto
+                {
+                    Token = token,
+                    Expiration = DateTime.UtcNow.AddHours(1)
+                };
+
+                _logger.LogInformation("Google login successful for: {Email}", email);
+
+                return Ok(response);
+            }
+            catch (InvalidJwtException ex)
+            {
+                _logger.LogWarning("Invalid Google ID token: {Message}", ex.Message);
+                return Unauthorized("Invalid Google token");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Google login failed");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        private string GenerateJwtToken(ApplicationUser appUser)
+        {
+            var jwtKey = _configuration["Jwt:Key"];
+            var issuer = _configuration["Jwt:Issuer"];
+            var audience = _configuration["Jwt:Audience"];
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, appUser.Id),
+                new Claim(ClaimTypes.Email, appUser.Email),
+                new Claim("userType", "external")
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         private string GenerateJwtToken(User user)

@@ -9,6 +9,8 @@ using RepositoryLayer.Repository;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using QuantityMeasurementAPI.Middleware;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -79,6 +81,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // =====================
 builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementEfRepository>();
 builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementService>();
+
+// FluentValidation for DTOs
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddFluentValidationAutoValidation();
 
 // =====================
 // JWT AUTHENTICATION
