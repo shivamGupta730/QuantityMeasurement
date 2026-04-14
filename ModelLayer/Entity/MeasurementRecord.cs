@@ -5,6 +5,11 @@ namespace ModelLayer.Entity
 {
     public class MeasurementRecord
     {
+        // ✅ EF Core ke liye empty constructor
+        public MeasurementRecord()
+        {
+        }
+
         public int Id { get; set; }
         public double InputValue { get; set; }
         public string FromUnit { get; set; } = string.Empty;
@@ -17,7 +22,13 @@ namespace ModelLayer.Entity
         public string? ErrorMessage { get; set; }
 
         // Constructor for backward compatibility
-        public MeasurementRecord(int id, double inputValue, string fromUnit, string toUnit, double resultValue, DateTime conversionDateTime)
+        public MeasurementRecord(
+            int id,
+            double inputValue,
+            string fromUnit,
+            string toUnit,
+            double resultValue,
+            DateTime conversionDateTime)
         {
             Id = id;
             InputValue = inputValue;
@@ -25,14 +36,23 @@ namespace ModelLayer.Entity
             ToUnit = toUnit;
             ResultValue = resultValue;
             ConversionDateTime = conversionDateTime;
-            MeasurementType = MeasurementType.Length; // default
-            OperationType = OperationType.Convert; // default
+            MeasurementType = MeasurementType.Length;
+            OperationType = OperationType.Convert;
             IsError = false;
         }
 
         // Full constructor
-        public MeasurementRecord(int id, double inputValue, string fromUnit, string toUnit, double resultValue, DateTime conversionDateTime, 
-            MeasurementType measurementType, OperationType operationType, bool isError = false, string? errorMessage = null)
+        public MeasurementRecord(
+            int id,
+            double inputValue,
+            string fromUnit,
+            string toUnit,
+            double resultValue,
+            DateTime conversionDateTime,
+            MeasurementType measurementType,
+            OperationType operationType,
+            bool isError = false,
+            string? errorMessage = null)
         {
             Id = id;
             InputValue = inputValue;
