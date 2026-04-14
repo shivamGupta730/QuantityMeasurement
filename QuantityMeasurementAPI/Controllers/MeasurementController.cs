@@ -10,7 +10,7 @@ namespace QuantityMeasurementAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Microsoft.AspNetCore.Authorization.Authorize]
+
 public class MeasurementController : ControllerBase
 {
     private readonly IQuantityMeasurementService _service;
