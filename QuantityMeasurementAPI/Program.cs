@@ -26,6 +26,7 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // =====================
 // SERVICES
 // =====================
@@ -119,6 +120,11 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
+}
 
 // =====================
 // RAILWAY PORT SUPPORT
