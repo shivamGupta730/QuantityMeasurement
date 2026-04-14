@@ -1,11 +1,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["QuantityMeasurementAPI/QuantityMeasurementAPI.csproj", "./"]
-RUN dotnet restore "./QuantityMeasurementAPI.csproj"
-
 COPY . .
-RUN dotnet publish "./QuantityMeasurementAPI.csproj" -c Release -o /app/publish
+
+RUN dotnet restore "QuantityMeasurementAPI/QuantityMeasurementAPI.csproj"
+RUN dotnet publish "QuantityMeasurementAPI/QuantityMeasurementAPI.csproj" -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
