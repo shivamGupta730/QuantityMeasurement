@@ -37,6 +37,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Quantity Measurement API",
+        Version = "v1"
+    });
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Enter JWT token like: Bearer {your token}",
@@ -56,7 +62,7 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            Array.Empty<string>()
         }
     });
 });
@@ -82,16 +88,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementEfRepository>();
 builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementService>();
 
-// FluentValidation for DTOs
+// FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddFluentValidationAutoValidation();
 
 // =====================
 // JWT AUTHENTICATION
 // =====================
-var key = builder.Configuration["Jwt:Key"];
+var key = builder.Configuration["Jwt:Key"]!;
 
 builder.Services.AddSerilog();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -103,10 +110,8 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-
         ValidateIssuer = false,
         ValidateAudience = false,
-
         ClockSkew = TimeSpan.Zero
     };
 });
@@ -114,14 +119,22 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // =====================
+// RAILWAY PORT SUPPORT
+// =====================
+var port = Environment.GetEnvironmentVariable("PORT");
+
+if (!string.IsNullOrEmpty(port))
+{
+    app.Urls.Add($"http://0.0.0.0:{port}");
+}
+
+// =====================
 // MIDDLEWARE PIPELINE
 // =====================
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Enable Swagger in all environments
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -132,6 +145,7 @@ app.UseAuthorization();
 
 app.UseSerilogRequestLogging();
 app.UseMiddleware<GlobalExceptionMiddleware>();
+
 app.MapControllers();
 
 app.Run();
