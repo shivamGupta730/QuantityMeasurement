@@ -26,7 +26,6 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // =====================
 // SERVICES
 // =====================
@@ -78,12 +77,20 @@ builder.Services.AddCors(options =>
 });
 
 // =====================
-// DATABASE (SQL SERVER)
+// DATABASE (POSTGRESQL - NEON)
 // =====================
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? builder.Configuration["ConnectionStrings__DefaultConnection"]
+    ?? builder.Configuration["DATABASE_URL"]
+    ?? builder.Configuration["DefaultConnection"];
+
+Console.WriteLine($"DB CONNECTION STRING: {connectionString}");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
+{
+    options.UseNpgsql(connectionString);
+});
 
 // =====================
 // DEPENDENCY INJECTION
@@ -120,6 +127,10 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
+
+// =====================
+// DATABASE INIT
+// =====================
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -140,7 +151,6 @@ if (!string.IsNullOrEmpty(port))
 // MIDDLEWARE PIPELINE
 // =====================
 
-// Enable Swagger in all environments
 app.UseSwagger();
 app.UseSwaggerUI();
 
