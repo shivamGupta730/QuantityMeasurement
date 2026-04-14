@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+// using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
@@ -23,15 +23,22 @@ public class GlobalExceptionMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception occurred while processing request. Path: {Path}, Method: {Method}, QueryString: {QueryString}", 
-                context.Request.Path, 
-                context.Request.Method, 
+            _logger.LogError(ex,
+                "Unhandled exception occurred while processing request. Path: {Path}, Method: {Method}, QueryString: {QueryString}",
+                context.Request.Path,
+                context.Request.Method,
                 context.Request.QueryString);
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
-            var response = new { Error = "An internal server error occurred" };
+            var response = new
+            {
+                Error = ex.Message,
+                Details = ex.InnerException?.Message,
+                StackTrace = ex.StackTrace
+            };
+
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));
         }
     }
