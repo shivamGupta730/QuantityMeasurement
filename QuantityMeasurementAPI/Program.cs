@@ -1,16 +1,19 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
-using RepositoryLayer.Context;
+using Serilog;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+
 using BusinessLayer.Services;
 using RepositoryLayer.Interface;
 using RepositoryLayer.Repository;
-using Microsoft.OpenApi.Models;
-using Serilog;
 using QuantityMeasurementAPI.Middleware;
-using FluentValidation;
-using FluentValidation.AspNetCore;
+
+// IMPORTANT: FORCE REPOSITORY DB CONTEXT
+using RepoDbContext = RepositoryLayer.Context.AppDbContext;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -27,7 +30,7 @@ Log.Logger = new LoggerConfiguration()
 var builder = WebApplication.CreateBuilder(args);
 
 // =====================
-// CONFIGURATION
+// SERILOG
 // =====================
 builder.Host.UseSerilog();
 
@@ -50,7 +53,7 @@ builder.Services.AddSwaggerGen(options =>
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "Enter JWT token like: Bearer {your token}",
+        Description = "Enter JWT token like: Bearer {token}",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey
@@ -99,13 +102,16 @@ if (string.IsNullOrWhiteSpace(connectionString))
 
 Console.WriteLine($"DB CONNECTION STRING: {connectionString}");
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<RepoDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// IMPORTANT DI
+// FORCE SAME CONTEXT FOR DI
 builder.Services.AddScoped<IAppDbContext>(provider =>
-    provider.GetRequiredService<AppDbContext>());
+    provider.GetRequiredService<RepoDbContext>());
 
+// =====================
+// REPOSITORY + SERVICES
+// =====================
 builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementEfRepository>();
 builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementService>();
 
@@ -116,13 +122,13 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddFluentValidationAutoValidation();
 
 // =====================
-// JWT AUTH
+// JWT
 // =====================
 var key = builder.Configuration["Jwt:Key"];
 
 if (string.IsNullOrWhiteSpace(key))
 {
-    throw new Exception("JWT key missing in appsettings.");
+    throw new Exception("JWT key missing.");
 }
 
 builder.Services.AddAuthentication(options =>
@@ -135,8 +141,8 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(key)),
+        IssuerSigningKey =
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
         ValidateIssuer = false,
         ValidateAudience = false,
         ClockSkew = TimeSpan.Zero
@@ -146,11 +152,11 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // =====================
-// DB MIGRATION
+// DB INIT
 // =====================
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<RepoDbContext>();
     db.Database.Migrate();
 }
 
