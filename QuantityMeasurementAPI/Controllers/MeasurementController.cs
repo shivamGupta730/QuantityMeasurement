@@ -26,6 +26,8 @@ public class MeasurementController : ControllerBase
         _logger = logger;
     }
 
+    // ─── LENGTH ───────────────────────────────────────────────
+
     [HttpPost("convert-length")]
     public async Task<IActionResult> ConvertLengthAsync([FromBody] MeasurementRequestDto request)
     {
@@ -73,6 +75,8 @@ public class MeasurementController : ControllerBase
         }
     }
 
+    // ─── VOLUME ───────────────────────────────────────────────
+
     [HttpPost("convert-volume")]
     public async Task<IActionResult> ConvertVolumeAsync([FromBody] MeasurementRequestDto request)
     {
@@ -88,41 +92,21 @@ public class MeasurementController : ControllerBase
         }
     }
 
-   [HttpPost("add-volumes")]
-public IActionResult AddVolumesAsync([FromBody] AddMeasurementRequestDto request)
-{
-    try
+    [HttpPost("add-volumes")]
+    public async Task<IActionResult> AddVolumesAsync([FromBody] AddMeasurementRequestDto request)
     {
-        var q1 = new Quantity<VolumeUnit>(
-            request.Value1,
-            ParseVolumeUnit(request.Unit1));
-
-        var q2 = new Quantity<VolumeUnit>(
-            request.Value2,
-            ParseVolumeUnit(request.Unit2));
-
-        var target = ParseVolumeUnit(request.TargetUnit);
-
-        // Direct calculation without service / DB save
-        var result = await _service.AddVolumesAsync(q1, q2, ParseVolumeUnit(request.TargetUnit));
-
-        return Ok(new MeasurementResultDto
+        try
         {
-            Value = result.Value,
-            Unit = result.Unit.ToString()
-        });
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Add volume failed");
-
-        return BadRequest(new
+            var q1 = new Quantity<VolumeUnit>(request.Value1, ParseVolumeUnit(request.Unit1));
+            var q2 = new Quantity<VolumeUnit>(request.Value2, ParseVolumeUnit(request.Unit2));
+            var result = await _service.AddVolumesAsync(q1, q2, ParseVolumeUnit(request.TargetUnit));
+            return Ok(new MeasurementResultDto { Value = result.Value, Unit = result.Unit.ToString() });
+        }
+        catch (Exception ex)
         {
-            error = ex.Message,
-            details = ex.InnerException?.Message
-        });
+            return BadRequest(ex.Message);
+        }
     }
-}
 
     [HttpPost("subtract-volumes")]
     public async Task<IActionResult> SubtractVolumesAsync([FromBody] AddMeasurementRequestDto request)
@@ -139,6 +123,8 @@ public IActionResult AddVolumesAsync([FromBody] AddMeasurementRequestDto request
             return BadRequest(ex.Message);
         }
     }
+
+    // ─── WEIGHT ───────────────────────────────────────────────
 
     [HttpPost("convert-weight")]
     public async Task<IActionResult> ConvertWeightAsync([FromBody] MeasurementRequestDto request)
@@ -187,6 +173,8 @@ public IActionResult AddVolumesAsync([FromBody] AddMeasurementRequestDto request
         }
     }
 
+    // ─── TEMPERATURE ──────────────────────────────────────────
+
     [HttpPost("convert-temperature")]
     public async Task<IActionResult> ConvertTemperatureAsync([FromBody] MeasurementRequestDto request)
     {
@@ -201,6 +189,8 @@ public IActionResult AddVolumesAsync([FromBody] AddMeasurementRequestDto request
             return BadRequest(ex.Message);
         }
     }
+
+    // ─── PARSERS ──────────────────────────────────────────────
 
     private static LengthUnit ParseLengthUnit(string unitStr) => unitStr.ToUpper() switch
     {
