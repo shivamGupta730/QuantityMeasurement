@@ -10,31 +10,35 @@ using Microsoft.Extensions.Logging;
 
 namespace BusinessLayer.Services
 {
-public class QuantityMeasurementService : IQuantityMeasurementService
+    public class QuantityMeasurementService : IQuantityMeasurementService
     {
         private readonly IQuantityMeasurementRepository _repository;
         private readonly ILogger<QuantityMeasurementService> _logger;
 
-        public QuantityMeasurementService(IQuantityMeasurementRepository repository, ILogger<QuantityMeasurementService> logger)
+        public QuantityMeasurementService(
+            IQuantityMeasurementRepository repository,
+            ILogger<QuantityMeasurementService> logger)
         {
             _repository = repository;
             _logger = logger;
         }
+
         private async Task SafeSaveMeasurementAsync(MeasurementRecord record)
-{
-    try
-    {
-        await SafeSaveMeasurementAsync(record);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "History save failed but operation result returned");
-    }
-}
+        {
+            try
+            {
+                await _repository.SaveMeasurementAsync(record);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "History save failed but operation result returned");
+            }
+        }
+
         public async Task SaveMeasurementAsync(MeasurementRecord record)
-{
-    await SafeSaveMeasurementAsync(record);
-}
+        {
+            await SafeSaveMeasurementAsync(record);
+        }
 
         public async Task<Quantity<LengthUnit>> ConvertLengthAsync(Quantity<LengthUnit> quantity, LengthUnit targetUnit)
         {
