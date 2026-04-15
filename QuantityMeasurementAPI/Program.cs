@@ -79,11 +79,19 @@ builder.Services.AddCors(options =>
 // =====================
 // DATABASE (POSTGRESQL - NEON)
 // =====================
+// =====================
+// DATABASE (POSTGRESQL - NEON)
+// =====================
 var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
     ?? builder.Configuration["ConnectionStrings__DefaultConnection"]
     ?? builder.Configuration["DATABASE_URL"]
     ?? builder.Configuration["DefaultConnection"];
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new Exception("Database connection string not found.");
+}
 
 Console.WriteLine($"DB CONNECTION STRING: {connectionString}");
 
@@ -91,6 +99,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(connectionString);
 });
+
+// 🔥 IMPORTANT
+builder.Services.AddScoped<IAppDbContext>(provider =>
+    provider.GetRequiredService<AppDbContext>());
 
 // =====================
 // DEPENDENCY INJECTION
