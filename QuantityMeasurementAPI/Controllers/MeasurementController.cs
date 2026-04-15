@@ -88,21 +88,41 @@ public class MeasurementController : ControllerBase
         }
     }
 
-    [HttpPost("add-volumes")]
-    public async Task<IActionResult> AddVolumesAsync([FromBody] AddMeasurementRequestDto request)
+   [HttpPost("add-volumes")]
+public IActionResult AddVolumesAsync([FromBody] AddMeasurementRequestDto request)
+{
+    try
     {
-        try
+        var q1 = new Quantity<VolumeUnit>(
+            request.Value1,
+            ParseVolumeUnit(request.Unit1));
+
+        var q2 = new Quantity<VolumeUnit>(
+            request.Value2,
+            ParseVolumeUnit(request.Unit2));
+
+        var target = ParseVolumeUnit(request.TargetUnit);
+
+        // Direct calculation without service / DB save
+        var result = q1.Add(q2, target);
+
+        return Ok(new MeasurementResultDto
         {
-            var q1 = new Quantity<VolumeUnit>(request.Value1, ParseVolumeUnit(request.Unit1));
-            var q2 = new Quantity<VolumeUnit>(request.Value2, ParseVolumeUnit(request.Unit2));
-            var result = await _service.AddVolumesAsync(q1, q2, ParseVolumeUnit(request.TargetUnit));
-            return Ok(new MeasurementResultDto { Value = result.Value, Unit = result.Unit.ToString() });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+            Value = result.Value,
+            Unit = result.Unit.ToString()
+        });
     }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Add volume failed");
+
+        return BadRequest(new
+        {
+            error = ex.Message,
+            details = ex.InnerException?.Message
+        });
+    }
+}
 
     [HttpPost("subtract-volumes")]
     public async Task<IActionResult> SubtractVolumesAsync([FromBody] AddMeasurementRequestDto request)
@@ -166,15 +186,7 @@ public class MeasurementController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-[HttpPost("add-volumes")]
-public IActionResult AddVolumesAsync([FromBody] AddMeasurementRequestDto request)
-{
-    return Ok(new
-    {
-        value = 999,
-        unit = "TEST"
-    });
-}
+
     [HttpPost("convert-temperature")]
     public async Task<IActionResult> ConvertTemperatureAsync([FromBody] MeasurementRequestDto request)
     {
