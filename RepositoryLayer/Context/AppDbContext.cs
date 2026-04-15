@@ -22,16 +22,31 @@ namespace RepositoryLayer.Context
     base.OnModelCreating(modelBuilder);
 
     modelBuilder.Entity<MeasurementRecord>(entity =>
-    {
-        entity.ToTable("measurements");
+{
+    entity.ToTable("measurements");
 
-        entity.HasKey(e => e.Id);
-        entity.Property(e => e.FromUnit).HasMaxLength(50);
-        entity.Property(e => e.ToUnit).HasMaxLength(50);
-        entity.Property(e => e.MeasurementType).HasConversion<string>();
-        entity.Property(e => e.OperationType).HasConversion<string>();
-        entity.Property(e => e.ErrorMessage).HasMaxLength(500);
-    });
+    entity.HasKey(e => e.Id);
+
+    entity.Property(e => e.Id).HasColumnName("Id");
+    entity.Property(e => e.InputValue).HasColumnName("InputValue");
+    entity.Property(e => e.FromUnit).HasColumnName("FromUnit").HasMaxLength(50);
+    entity.Property(e => e.ToUnit).HasColumnName("ToUnit").HasMaxLength(50);
+    entity.Property(e => e.ResultValue).HasColumnName("ResultValue");
+    entity.Property(e => e.ConversionDateTime).HasColumnName("ConversionDateTime");
+    entity.Property(e => e.IsError).HasColumnName("IsError");
+
+    entity.Property(e => e.MeasurementType)
+          .HasColumnName("MeasurementType")
+          .HasConversion<string>();
+
+    entity.Property(e => e.OperationType)
+          .HasColumnName("OperationType")
+          .HasConversion<string>();
+
+    entity.Property(e => e.ErrorMessage)
+          .HasColumnName("ErrorMessage")
+          .HasMaxLength(500);
+});
 
     modelBuilder.Entity<User>(entity =>
     {
