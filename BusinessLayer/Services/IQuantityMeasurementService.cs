@@ -19,7 +19,7 @@ namespace BusinessLayer.Services
         Task<Quantity<VolumeUnit>> ConvertVolumeAsync(Quantity<VolumeUnit> quantity, VolumeUnit targetUnit);
         Task<Quantity<VolumeUnit>> AddVolumesAsync(Quantity<VolumeUnit> q1, Quantity<VolumeUnit> q2, VolumeUnit targetUnit);
         Task<Quantity<VolumeUnit>> SubtractVolumesAsync(Quantity<VolumeUnit> q1, Quantity<VolumeUnit> q2, VolumeUnit targetUnit);
-
+        public async Task<bool> AreVolumesEqualAsync(Quantity<VolumeUnit> q1,Quantity<VolumeUnit> q2)
         Task<Quantity<WeightUnit>> ConvertWeightAsync(Quantity<WeightUnit> quantity, WeightUnit targetUnit);
         Task<Quantity<WeightUnit>> AddWeightsAsync(Quantity<WeightUnit> q1, Quantity<WeightUnit> q2, WeightUnit targetUnit);
         Task<Quantity<WeightUnit>> SubtractWeightsAsync(Quantity<WeightUnit> q1, Quantity<WeightUnit> q2, WeightUnit targetUnit);
