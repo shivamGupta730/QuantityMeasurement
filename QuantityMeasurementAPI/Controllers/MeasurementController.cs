@@ -74,6 +74,34 @@ public class MeasurementController : ControllerBase
     return BadRequest(ex.ToString());
 }
     }
+    [HttpPost("compare-length")]
+public async Task<IActionResult> CompareLengthAsync([FromBody] CompareRequestDto request)
+{
+    try
+    {
+        var q1 = new Quantity<LengthUnit>(
+            request.Value1,
+            ParseLengthUnit(request.Unit1));
+
+        var q2 = new Quantity<LengthUnit>(
+            request.Value2,
+            ParseLengthUnit(request.Unit2));
+
+        var result = await _service.AreLengthsEqualAsync(q1, q2);
+
+        return Ok(new CompareResultDto
+        {
+            IsEqual = result,
+            Message = result ? "Both values are equal" : "Values are not equal",
+            Value1Base = q1.ConvertTo(LengthUnit.Feet).Value,
+            Value2Base = q2.ConvertTo(LengthUnit.Feet).Value
+        });
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(ex.ToString());
+    }
+}
 
     // ─── VOLUME ───────────────────────────────────────────────
 
