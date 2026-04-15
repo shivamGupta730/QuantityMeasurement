@@ -70,9 +70,9 @@ public class MeasurementController : ControllerBase
             return Ok(new MeasurementResultDto { Value = result.Value, Unit = result.Unit.ToString() });
         }
         catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+{
+    return BadRequest(ex.ToString());
+}
     }
 
     // ─── VOLUME ───────────────────────────────────────────────
