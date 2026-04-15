@@ -8,6 +8,7 @@ namespace BusinessLayer.Services
 {
     public interface IQuantityMeasurementService
     {
+        Task SaveMeasurementAsync(MeasurementRecord record);
         Task<Quantity<LengthUnit>> ConvertLengthAsync(Quantity<LengthUnit> quantity, LengthUnit targetUnit);
         Task<Quantity<LengthUnit>> AddLengthsAsync(Quantity<LengthUnit> q1, Quantity<LengthUnit> q2, LengthUnit targetUnit);
 

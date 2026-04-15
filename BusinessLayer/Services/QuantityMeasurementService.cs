@@ -20,6 +20,21 @@ public class QuantityMeasurementService : IQuantityMeasurementService
             _repository = repository;
             _logger = logger;
         }
+        private async Task SafeSaveMeasurementAsync(MeasurementRecord record)
+{
+    try
+    {
+        await SafeSaveMeasurementAsync(record);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "History save failed but operation result returned");
+    }
+}
+        public async Task SaveMeasurementAsync(MeasurementRecord record)
+{
+    await SafeSaveMeasurementAsync(record);
+}
 
         public async Task<Quantity<LengthUnit>> ConvertLengthAsync(Quantity<LengthUnit> quantity, LengthUnit targetUnit)
         {
@@ -28,7 +43,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
                 _logger.LogInformation("Converting length {Value} {Unit} to {TargetUnit}", quantity.Value, quantity.Unit, targetUnit);
                 var result = quantity.ConvertTo(targetUnit);
                 var record = new MeasurementRecord(0, quantity.Value, quantity.Unit.ToString(), targetUnit.ToString(), result.Value, DateTime.Now, MeasurementType.Length, OperationType.Convert);
-                await _repository.SaveMeasurementAsync(record);
+                await SafeSaveMeasurementAsync(record);
                 _logger.LogInformation("Length conversion successful: {Value} {Unit} = {Result} {TargetUnit}", quantity.Value, quantity.Unit, result.Value, targetUnit);
                 return result;
             }
@@ -46,7 +61,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
                 _logger.LogInformation("Adding lengths {Value1} {Unit1} + {Value2} {Unit2} to {TargetUnit}", q1.Value, q1.Unit, q2.Value, q2.Unit, targetUnit);
                 var result = q1.Add(q2, targetUnit);
                 var record = new MeasurementRecord(0, q1.Value, q1.Unit.ToString(), targetUnit.ToString(), result.Value, DateTime.Now, MeasurementType.Length, OperationType.Add);
-                await _repository.SaveMeasurementAsync(record);
+                await SafeSaveMeasurementAsync(record);
                 _logger.LogInformation("Length addition successful: {Result} {TargetUnit}", result.Value, targetUnit);
                 return result;
             }
@@ -64,7 +79,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
                 _logger.LogInformation("Subtracting lengths {Value1} {Unit1} - {Value2} {Unit2} to {TargetUnit}", q1.Value, q1.Unit, q2.Value, q2.Unit, targetUnit);
                 var result = q1.Subtract(q2, targetUnit);
                 var record = new MeasurementRecord(0, q1.Value, q1.Unit.ToString(), targetUnit.ToString(), result.Value, DateTime.Now, MeasurementType.Length, OperationType.Subtract);
-                await _repository.SaveMeasurementAsync(record);
+                await SafeSaveMeasurementAsync(record);
                 _logger.LogInformation("Length subtraction successful: {Result} {TargetUnit}", result.Value, targetUnit);
                 return result;
             }
@@ -82,7 +97,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
                 _logger.LogInformation("Comparing lengths {Value1} {Unit1} vs {Value2} {Unit2}", q1.Value, q1.Unit, q2.Value, q2.Unit);
                 var result = q1.Equals(q2);
                 var record = new MeasurementRecord(0, q1.Value, q1.Unit.ToString(), q2.Unit.ToString(), result ? 1.0 : 0.0, DateTime.Now, MeasurementType.Length, OperationType.Compare);
-                await _repository.SaveMeasurementAsync(record);
+                await SafeSaveMeasurementAsync(record);
                 _logger.LogInformation("Length comparison result: {Result}", result);
                 return result;
             }
@@ -98,7 +113,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
         {
             var result = quantity.ConvertTo(targetUnit);
             var record = new MeasurementRecord(0, quantity.Value, quantity.Unit.ToString(), targetUnit.ToString(), result.Value, DateTime.Now, MeasurementType.Volume, OperationType.Convert);
-            await _repository.SaveMeasurementAsync(record);
+            await SafeSaveMeasurementAsync(record);
             return result;
         }
 
@@ -106,7 +121,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
         {
             var result = q1.Add(q2, targetUnit);
             var record = new MeasurementRecord(0, q1.Value, q1.Unit.ToString(), targetUnit.ToString(), result.Value, DateTime.Now, MeasurementType.Volume, OperationType.Add);
-            await _repository.SaveMeasurementAsync(record);
+            await SafeSaveMeasurementAsync(record);
             return result;
         }
 
@@ -114,7 +129,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
         {
             var result = q1.Subtract(q2, targetUnit);
             var record = new MeasurementRecord(0, q1.Value, q1.Unit.ToString(), targetUnit.ToString(), result.Value, DateTime.Now, MeasurementType.Volume, OperationType.Subtract);
-            await _repository.SaveMeasurementAsync(record);
+            await SafeSaveMeasurementAsync(record);
             return result;
         }
 
@@ -122,7 +137,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
         {
             var result = q1.Equals(q2);
             var record = new MeasurementRecord(0, q1.Value, q1.Unit.ToString(), q2.Unit.ToString(), result ? 1.0 : 0.0, DateTime.Now, MeasurementType.Volume, OperationType.Compare);
-            await _repository.SaveMeasurementAsync(record);
+            await SafeSaveMeasurementAsync(record);
             return result;
         }
 
@@ -131,7 +146,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
         {
             var result = quantity.ConvertTo(targetUnit);
             var record = new MeasurementRecord(0, quantity.Value, quantity.Unit.ToString(), targetUnit.ToString(), result.Value, DateTime.Now, MeasurementType.Weight, OperationType.Convert);
-            await _repository.SaveMeasurementAsync(record);
+            await SafeSaveMeasurementAsync(record);
             return result;
         }
 
@@ -139,7 +154,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
         {
             var result = q1.Add(q2, targetUnit);
             var record = new MeasurementRecord(0, q1.Value, q1.Unit.ToString(), targetUnit.ToString(), result.Value, DateTime.Now, MeasurementType.Weight, OperationType.Add);
-            await _repository.SaveMeasurementAsync(record);
+            await SafeSaveMeasurementAsync(record);
             return result;
         }
 
@@ -147,7 +162,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
         {
             var result = q1.Subtract(q2, targetUnit);
             var record = new MeasurementRecord(0, q1.Value, q1.Unit.ToString(), targetUnit.ToString(), result.Value, DateTime.Now, MeasurementType.Weight, OperationType.Subtract);
-            await _repository.SaveMeasurementAsync(record);
+            await SafeSaveMeasurementAsync(record);
             return result;
         }
 
@@ -155,7 +170,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
         {
             var result = q1.Equals(q2);
             var record = new MeasurementRecord(0, q1.Value, q1.Unit.ToString(), q2.Unit.ToString(), result ? 1.0 : 0.0, DateTime.Now, MeasurementType.Weight, OperationType.Compare);
-            await _repository.SaveMeasurementAsync(record);
+            await SafeSaveMeasurementAsync(record);
             return result;
         }
 
@@ -164,7 +179,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
         {
             var result = quantity.ConvertTo(targetUnit);
             var record = new MeasurementRecord(0, quantity.Value, quantity.Unit.ToString(), targetUnit.ToString(), result.Value, DateTime.Now, MeasurementType.Temperature, OperationType.Convert);
-            await _repository.SaveMeasurementAsync(record);
+            await SafeSaveMeasurementAsync(record);
             return result;
         }
 
@@ -172,7 +187,7 @@ public class QuantityMeasurementService : IQuantityMeasurementService
         {
             var result = q1.Equals(q2);
             var record = new MeasurementRecord(0, q1.Value, q1.Unit.ToString(), q2.Unit.ToString(), result ? 1.0 : 0.0, DateTime.Now, MeasurementType.Temperature, OperationType.Compare);
-            await _repository.SaveMeasurementAsync(record);
+            await SafeSaveMeasurementAsync(record);
             return result;
         }
 
