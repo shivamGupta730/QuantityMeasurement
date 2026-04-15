@@ -14,6 +14,7 @@ namespace BusinessLayer.Services
         Task<Quantity<LengthUnit>> AddLengthsAsync(Quantity<LengthUnit> q1, Quantity<LengthUnit> q2, LengthUnit targetUnit);
         Task<Quantity<LengthUnit>> SubtractLengthsAsync(Quantity<LengthUnit> q1, Quantity<LengthUnit> q2, LengthUnit targetUnit);
         Task<bool> AreLengthsEqualAsync( Quantity<LengthUnit> q1, Quantity<LengthUnit> q2);
+        Task<double> DivideLengthsAsync(Quantity<LengthUnit> q1,Quantity<LengthUnit> q2);
 
         Task<Quantity<VolumeUnit>> ConvertVolumeAsync(Quantity<VolumeUnit> quantity, VolumeUnit targetUnit);
         Task<Quantity<VolumeUnit>> AddVolumesAsync(Quantity<VolumeUnit> q1, Quantity<VolumeUnit> q2, VolumeUnit targetUnit);

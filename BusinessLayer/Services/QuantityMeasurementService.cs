@@ -111,6 +111,16 @@ namespace BusinessLayer.Services
                 throw;
             }
         }
+ public async Task<double> DivideLengthsAsync(Quantity<LengthUnit> q1,Quantity<LengthUnit> q2)
+{
+    var value1 = q1.ConvertTo(LengthUnit.Feet).Value;
+    var value2 = q2.ConvertTo(LengthUnit.Feet).Value;
+
+    if (value2 == 0)
+        throw new DivideByZeroException("Cannot divide by zero");
+
+    return await Task.FromResult(value1 / value2);
+}
 
         // Volume (similar async updates)
         public async Task<Quantity<VolumeUnit>> ConvertVolumeAsync(Quantity<VolumeUnit> quantity, VolumeUnit targetUnit)

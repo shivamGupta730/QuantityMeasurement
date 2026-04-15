@@ -103,6 +103,32 @@ public async Task<IActionResult> CompareLengthAsync([FromBody] CompareRequestDto
         return BadRequest(ex.ToString());
     }
 }
+[HttpPost("divide-length")]
+public async Task<IActionResult> DivideLengthAsync([FromBody] CompareRequestDto request)
+{
+    try
+    {
+        var q1 = new Quantity<LengthUnit>(
+            request.Value1,
+            ParseLengthUnit(request.Unit1));
+
+        var q2 = new Quantity<LengthUnit>(
+            request.Value2,
+            ParseLengthUnit(request.Unit2));
+
+        var result = await _service.DivideLengthsAsync(q1, q2);
+
+        return Ok(new
+        {
+            value = result,
+            unit = "ratio"
+        });
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(ex.ToString());
+    }
+}
 
     // ─── VOLUME ───────────────────────────────────────────────
 
