@@ -154,11 +154,11 @@ var app = builder.Build();
 // =====================
 // DB INIT
 // =====================
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<RepoDbContext>();
-    db.Database.Migrate();
-}
+// using (var scope = app.Services.CreateScope())
+// {
+//     var db = scope.ServiceProvider.GetRequiredService<RepoDbContext>();
+//     db.Database.Migrate();
+// }
 
 // =====================
 // RAILWAY PORT
