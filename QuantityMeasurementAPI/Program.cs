@@ -105,9 +105,9 @@ Console.WriteLine($"DB CONNECTION STRING: {connectionString}");
 builder.Services.AddDbContext<RepoDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// FORCE SAME CONTEXT FOR DI
-builder.Services.AddScoped<IAppDbContext>(provider =>
-    provider.GetRequiredService<RepoDbContext>());
+// // FORCE SAME CONTEXT FOR DI
+// builder.Services.AddScoped<IAppDbContext>(provider =>
+//     provider.GetRequiredService<RepoDbContext>());
 
 // =====================
 // REPOSITORY + SERVICES

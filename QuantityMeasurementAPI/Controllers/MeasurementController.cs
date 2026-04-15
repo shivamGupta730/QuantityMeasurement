@@ -14,15 +14,18 @@ namespace QuantityMeasurementAPI.Controllers;
 public class MeasurementController : ControllerBase
 {
     private readonly IQuantityMeasurementService _service;
+    private readonly IQuantityMeasurementRepository _repository;
     private readonly ILogger<MeasurementController> _logger;
 
-  public MeasurementController(
-    IQuantityMeasurementService service,
-    ILogger<MeasurementController> logger)
-{
-    _service = service;
-    _logger = logger;
-}
+    public MeasurementController(
+        IQuantityMeasurementService service,
+        IQuantityMeasurementRepository repository,
+        ILogger<MeasurementController> logger)
+    {
+        _service = service;
+        _repository = repository;
+        _logger = logger;
+    }
 
     // Length endpoints
     [HttpPost("convert-length")]
