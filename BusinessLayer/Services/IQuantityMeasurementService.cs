@@ -24,6 +24,7 @@ namespace BusinessLayer.Services
         Task<Quantity<WeightUnit>> AddWeightsAsync(Quantity<WeightUnit> q1, Quantity<WeightUnit> q2, WeightUnit targetUnit);
         Task<Quantity<WeightUnit>> SubtractWeightsAsync(Quantity<WeightUnit> q1, Quantity<WeightUnit> q2, WeightUnit targetUnit);
         Task<double> DivideWeightsAsync(Quantity<WeightUnit> q1,Quantity<WeightUnit> q2);
+        Task<bool> AreWeightsEqualAsync(Quantity<WeightUnit> q1,Quantity<WeightUnit> q2);
 
         Task<Quantity<TemperatureUnit>> ConvertTemperatureAsync(Quantity<TemperatureUnit> quantity, TemperatureUnit targetUnit);
 

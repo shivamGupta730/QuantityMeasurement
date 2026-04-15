@@ -227,6 +227,34 @@ public async Task<IActionResult> DivideLengthAsync([FromBody] CompareRequestDto 
             return BadRequest(ex.Message);
         }
     }
+    [HttpPost("compare-weight")]
+public async Task<IActionResult> CompareWeightAsync([FromBody] CompareRequestDto request)
+{
+    try
+    {
+        var q1 = new Quantity<WeightUnit>(
+            request.Value1,
+            ParseWeightUnit(request.Unit1));
+
+        var q2 = new Quantity<WeightUnit>(
+            request.Value2,
+            ParseWeightUnit(request.Unit2));
+
+        var result = await _service.AreWeightsEqualAsync(q1, q2);
+
+        return Ok(new
+        {
+            isEqual = result,
+            message = result
+                ? "Both weights are equal"
+                : "Weights are not equal"
+        });
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(ex.ToString());
+    }
+}
     [HttpPost("divide-weight")]
 public async Task<IActionResult> DivideWeightAsync([FromBody] CompareRequestDto request)
 {
