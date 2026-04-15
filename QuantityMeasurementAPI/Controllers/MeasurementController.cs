@@ -166,7 +166,15 @@ public class MeasurementController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-
+[HttpPost("add-volumes")]
+public IActionResult AddVolumesAsync([FromBody] AddMeasurementRequestDto request)
+{
+    return Ok(new
+    {
+        value = 999,
+        unit = "TEST"
+    });
+}
     [HttpPost("convert-temperature")]
     public async Task<IActionResult> ConvertTemperatureAsync([FromBody] MeasurementRequestDto request)
     {
