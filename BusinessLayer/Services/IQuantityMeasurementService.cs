@@ -28,6 +28,7 @@ namespace BusinessLayer.Services
         Task<double> DivideVolumesAsync( Quantity<VolumeUnit> q1, Quantity<VolumeUnit> q2);
 
         Task<Quantity<TemperatureUnit>> ConvertTemperatureAsync(Quantity<TemperatureUnit> quantity, TemperatureUnit targetUnit);
+        Task<bool> AreTemperaturesEqualAsync(Quantity<TemperatureUnit> q1,Quantity<TemperatureUnit> q2);
 
         Task<List<MeasurementRecord>> GetHistoryByOperationAsync(OperationType operation);
         Task<List<MeasurementRecord>> GetHistoryByMeasurementTypeAsync(MeasurementType type);

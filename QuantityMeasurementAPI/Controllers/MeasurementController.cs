@@ -253,6 +253,34 @@ public async Task<IActionResult> DivideVolumeAsync([FromBody] CompareRequestDto 
         return BadRequest(ex.ToString());
     }
 }
+[HttpPost("compare-temperature")]
+public async Task<IActionResult> CompareTemperatureAsync([FromBody] CompareRequestDto request)
+{
+    try
+    {
+        var q1 = new Quantity<TemperatureUnit>(
+            request.Value1,
+            ParseTemperatureUnit(request.Unit1));
+
+        var q2 = new Quantity<TemperatureUnit>(
+            request.Value2,
+            ParseTemperatureUnit(request.Unit2));
+
+        var result = await _service.AreTemperaturesEqualAsync(q1, q2);
+
+        return Ok(new
+        {
+            isEqual = result,
+            message = result
+                ? "Both temperatures are equal"
+                : "Temperatures are not equal"
+        });
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(ex.ToString());
+    }
+}
     [HttpPost("compare-weight")]
 public async Task<IActionResult> CompareWeightAsync([FromBody] CompareRequestDto request)
 {
