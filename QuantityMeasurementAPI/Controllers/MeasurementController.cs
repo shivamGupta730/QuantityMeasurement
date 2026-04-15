@@ -74,6 +74,7 @@ public class MeasurementController : ControllerBase
     return BadRequest(ex.ToString());
 }
     }
+    // redeploy compare length endpoint
     [HttpPost("compare-length")]
 public async Task<IActionResult> CompareLengthAsync([FromBody] CompareRequestDto request)
 {
