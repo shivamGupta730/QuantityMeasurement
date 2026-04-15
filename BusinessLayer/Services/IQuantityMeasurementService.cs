@@ -24,6 +24,10 @@ namespace BusinessLayer.Services
         Task<List<MeasurementRecord>> GetHistoryByMeasurementTypeAsync(MeasurementType type);
         Task<List<MeasurementRecord>> GetErrorHistoryAsync();
 
+        Task<Quantity<LengthUnit>> SubtractLengthsAsync(Quantity<LengthUnit> q1, Quantity<LengthUnit> q2, LengthUnit targetUnit);
+        Task<Quantity<VolumeUnit>> SubtractVolumesAsync(Quantity<VolumeUnit> q1, Quantity<VolumeUnit> q2, VolumeUnit targetUnit);
+        Task<Quantity<WeightUnit>> SubtractWeightsAsync(Quantity<WeightUnit> q1, Quantity<WeightUnit> q2, WeightUnit targetUnit);
+
         Task<int> GetOperationCountAsync(OperationType operation);
     }
 }

@@ -104,7 +104,7 @@ public IActionResult AddVolumesAsync([FromBody] AddMeasurementRequestDto request
         var target = ParseVolumeUnit(request.TargetUnit);
 
         // Direct calculation without service / DB save
-        var result = q1.Add(q2, target);
+        var result = await _service.AddVolumesAsync(q1, q2, ParseVolumeUnit(request.TargetUnit));
 
         return Ok(new MeasurementResultDto
         {
