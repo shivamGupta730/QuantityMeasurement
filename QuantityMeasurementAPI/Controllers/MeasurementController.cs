@@ -114,32 +114,49 @@ public class MeasurementController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
-
-    [HttpPost("add-lengths")]
-    public async Task<IActionResult> AddLengthsAsync([FromBody] AddMeasurementRequestDto request)
+[HttpPost("add-lengths")]
+public async Task<IActionResult> AddLengthsAsync([FromBody] AddMeasurementRequestDto request)
+{
+    try
     {
-        try 
+        var unit1 = ParseLengthUnit(request.Unit1);
+        var unit2 = ParseLengthUnit(request.Unit2);
+        var targetUnit = ParseLengthUnit(request.TargetUnit);
+
+        var q1 = new Quantity<LengthUnit>(request.Value1, unit1);
+        var q2 = new Quantity<LengthUnit>(request.Value2, unit2);
+
+        var result = q1.Add(q2, targetUnit);
+
+        var record = new MeasurementRecord(
+            0,
+            request.Value1,
+            request.Unit1,
+            request.TargetUnit,
+            result.Value,
+            DateTime.UtcNow,
+            ModelLayer.Enum.MeasurementType.Length,
+            ModelLayer.Enum.OperationType.Add
+        );
+
+        await _repository.SaveMeasurementAsync(record);
+
+        return Ok(new MeasurementResultDto
         {
-            var unit1 = ParseLengthUnit(request.Unit1);
-            var unit2 = ParseLengthUnit(request.Unit2);
-            var targetUnit = ParseLengthUnit(request.TargetUnit);
-            var q1 = new Quantity<LengthUnit>(request.Value1, unit1);
-            var q2 = new Quantity<LengthUnit>(request.Value2, unit2);
-            var result = await _service.AddLengthsAsync(q1, q2, targetUnit);
-            
-            _logger.LogInformation("Length addition completed with OperationType=Add - history saved");
-            return Ok(new MeasurementResultDto 
-            { 
-                Value = result.Value, 
-                Unit = result.Unit.ToString() 
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Length addition failed");
-            return BadRequest(ex.Message);
-        }
+            Value = result.Value,
+            Unit = result.Unit.ToString()
+        });
     }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Length addition failed");
+        return BadRequest(new
+        {
+            Error = ex.Message,
+            Details = ex.InnerException?.Message
+        });
+    }
+}
 
     [HttpPost("subtract-lengths")]
     public async Task<IActionResult> SubtractLengthsAsync([FromBody] AddMeasurementRequestDto request)
