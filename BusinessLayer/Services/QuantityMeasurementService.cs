@@ -196,6 +196,16 @@ namespace BusinessLayer.Services
             await SafeSaveMeasurementAsync(record);
             return result;
         }
+        public async Task<double> DivideWeightsAsync(Quantity<WeightUnit> q1,Quantity<WeightUnit> q2)
+{
+    var value1 = q1.ConvertTo(WeightUnit.Kilogram).Value;
+    var value2 = q2.ConvertTo(WeightUnit.Kilogram).Value;
+
+    if (value2 == 0)
+        throw new DivideByZeroException("Cannot divide by zero");
+
+    return await Task.FromResult(value1 / value2);
+}
 
         public async Task<bool> AreTemperaturesEqualAsync(Quantity<TemperatureUnit> q1, Quantity<TemperatureUnit> q2)
         {
