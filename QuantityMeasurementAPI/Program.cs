@@ -27,13 +27,18 @@ Log.Logger = new LoggerConfiguration()
 var builder = WebApplication.CreateBuilder(args);
 
 // =====================
-// SERVICES
+// CONFIGURATION
 // =====================
+builder.Host.UseSerilog();
 
-// Controllers
+// =====================
+// CONTROLLERS
+// =====================
 builder.Services.AddControllers();
 
-// Swagger + JWT Support
+// =====================
+// SWAGGER
+// =====================
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -67,20 +72,19 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// =====================
 // CORS
+// =====================
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        policy => policy.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader());
 });
 
 // =====================
-// DATABASE (POSTGRESQL - NEON)
-// =====================
-// =====================
-// DATABASE (POSTGRESQL - NEON)
+// DATABASE
 // =====================
 var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
@@ -96,30 +100,30 @@ if (string.IsNullOrWhiteSpace(connectionString))
 Console.WriteLine($"DB CONNECTION STRING: {connectionString}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseNpgsql(connectionString);
-});
+    options.UseNpgsql(connectionString));
 
-// 🔥 IMPORTANT
+// IMPORTANT DI
 builder.Services.AddScoped<IAppDbContext>(provider =>
     provider.GetRequiredService<AppDbContext>());
 
-// =====================
-// DEPENDENCY INJECTION
-// =====================
 builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementEfRepository>();
 builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementService>();
 
-// FluentValidation
+// =====================
+// VALIDATION
+// =====================
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddFluentValidationAutoValidation();
 
 // =====================
-// JWT AUTHENTICATION
+// JWT AUTH
 // =====================
-var key = builder.Configuration["Jwt:Key"]!;
+var key = builder.Configuration["Jwt:Key"];
 
-builder.Services.AddSerilog();
+if (string.IsNullOrWhiteSpace(key))
+{
+    throw new Exception("JWT key missing in appsettings.");
+}
 
 builder.Services.AddAuthentication(options =>
 {
@@ -131,7 +135,8 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(key)),
         ValidateIssuer = false,
         ValidateAudience = false,
         ClockSkew = TimeSpan.Zero
@@ -141,16 +146,16 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // =====================
-// DATABASE INIT
+// DB MIGRATION
 // =====================
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
+    db.Database.Migrate();
 }
 
 // =====================
-// RAILWAY PORT SUPPORT
+// RAILWAY PORT
 // =====================
 var port = Environment.GetEnvironmentVariable("PORT");
 
@@ -160,8 +165,9 @@ if (!string.IsNullOrEmpty(port))
 }
 
 // =====================
-// MIDDLEWARE PIPELINE
+// MIDDLEWARE
 // =====================
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -174,7 +180,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSerilogRequestLogging();
-app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.MapControllers();
 
